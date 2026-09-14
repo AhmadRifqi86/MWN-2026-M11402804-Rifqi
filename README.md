@@ -11,9 +11,9 @@
     - [A4 — Baseline Reproduction](#a4--baseline-reproduction)
     - [Final Project — Your Modification](#final-project--your-modification)
 
-## Introduction
+<!-- ## Introduction -->
 
-> [!WARNING]
+<!-- > [!WARNING]
 > Remove this Introduction section once you have finished the setup.
 
 1. Create your own repository and name it `MWN-[year]-[Student ID]-[English Name]`.
@@ -34,7 +34,7 @@
    ```
 
 5. Commit **every week**. The history is part of the grade — a single upload on the deadline is
-   not acceptable.
+   not acceptable. -->
 
 ## 1. Profile
 
@@ -43,7 +43,7 @@
 3. Department: Departement of Electronics and Computer Engineering
 4. Student status: NTUST Student
 5. Path: Basic — 802.11e reproduction
-6. Topic:
+6. Topic: Optimal QoS policy under different traffic models
 
 ## 2. Assignments
 
