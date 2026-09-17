@@ -209,7 +209,7 @@ Three questions this plan should let a reader answer clearly:
 ## A5 Link to submission files
 
 - **Presentation:** [a1-slides.pptx](assets/ppt/a1-slides.pptx)
-- **Recordings:** [Presentation recordings][https://drive.google.com/file/d/1dMFfAZEZn-BPuKtqABhaphVsGrws-lIp/view?usp=drive_link]
+- **Recordings:** [Presentation recordings](https://drive.google.com/file/d/1dMFfAZEZn-BPuKtqABhaphVsGrws-lIp/view?usp=drive_link)
 - **Rehearsal:**
 
 ![Rehearsal photo 1](assets/img/rehearse/a1-rehearse-pic1.png)
