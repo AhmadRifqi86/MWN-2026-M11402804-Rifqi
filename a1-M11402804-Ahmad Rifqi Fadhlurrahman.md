@@ -194,18 +194,6 @@ This is the scenario that earns the "time-of-day modulated" framing. Everywhere 
 
 ---
 
-# General Template Reminder
-
-**Problem → Importance → Challenges → System Block Diagram → Assumptions → Inputs/Outputs → Metrics → Experiment Design → Figures → Cross-Validation**
-
-Three questions this plan should let a reader answer clearly:
-
-1. **What problem are you trying to solve, and why is it difficult?** — Fixed-λ₁ MMPP analyses (like the base paper's) can misstate CAC-driven QoS risk during real peak hours; re-deriving a fully time-inhomogeneous model to fix that is far from trivial.
-2. **How does your proposed method address each identified challenge?** — Two layers. A quasi-stationary parameter sweep (re-solving the paper's unmodified DTMC once per regime) captures the peak/off-peak gap cheaply and with no derivation risk; then a genuine time-varying solve with λ₁(t) — reusing the same P matrices but propagating them forward / solving the cyclostationary daily loop — makes the "time-of-day modulated" claim literal and bounds the error of the cheap approximation.
-3. **What experiment and metric will demonstrate that the method actually solves the problem?** — Scenarios 1–2 measure the size of the peak/off-peak QoS gap across all six of the paper's performance metrics (and, via the fine-sweep composition, the convexity/Jensen bias of any single-λ₁ analysis); Scenario 3 turns that gap into a concrete threshold-adjustment recommendation; Scenario 4 solves the true time-varying chain to quantify the remaining *transient* error — lag and overshoot — that the quasi-stationary curve cannot capture.
-
-
-
 ## A5 Link to submission files
 
 - **Presentation:** [a1-slides.pptx](assets/ppt/a1-slides.pptx)
