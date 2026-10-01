@@ -4,13 +4,13 @@
 
 This guide assumes you have **never installed Docker**. Every command below was run end-to-end on a real machine; the numbers and screenshots in this document come from that run (see [Reference run](#reference-run)).
 
-Every file used here is in the [`a2/`](a2/) folder:
+Every file used here is in the [`codes/a2/`](codes/a2/) folder:
 
 | File | Purpose |
 |---|---|
-| [`a2/Dockerfile`](a2/Dockerfile) | Ubuntu 24.04 image with the ns-3 toolchain, `tshark`, and Python plotting |
-| [`a2/xr-traffic.cc`](a2/xr-traffic.cc) | ns-3 program: 3GPP XR video traffic generator + PCAP + FlowMonitor + PDB check |
-| [`a2/plot_dist.py`](a2/plot_dist.py) | PDF/CDF of frame size, jitter, inter-arrival and packet size vs the model, with KS tests |
+| [`codes/a2/Dockerfile`](codes/a2/Dockerfile) | Ubuntu 24.04 image with the ns-3 toolchain, `tshark`, and Python plotting |
+| [`codes/a2/xr-traffic.cc`](codes/a2/xr-traffic.cc) | ns-3 program: 3GPP XR video traffic generator + PCAP + FlowMonitor + PDB check |
+| [`codes/a2/plot_dist.py`](codes/a2/plot_dist.py) | PDF/CDF of frame size, jitter, inter-arrival and packet size vs the model, with KS tests |
 
 The task maps to the steps like this:
 
@@ -69,8 +69,8 @@ Install **Docker Desktop** from <https://www.docker.com/products/docker-desktop/
 The image holds the **tools** (compiler, CMake, `tshark`, Python). ns-3's **source** is cloned into a folder on your host and mounted into the container, so your code and results survive after the container exits and you can edit them with your normal editor.
 
 ```bash
-# from the repo root (the folder that contains a2/)
-docker build -t ns3lab a2/
+# from the repo root (the folder that contains codes/a2/)
+docker build -t ns3lab codes/a2/
 ```
 
 This took **3 minutes** in the reference run and produces a 1.1 GB image. Later builds are cached.
@@ -79,7 +79,7 @@ Create a work folder on the host and start a container with it mounted at `/work
 
 ```bash
 mkdir -p ~/ns3-work
-cp a2/xr-traffic.cc a2/plot_dist.py ~/ns3-work/
+cp codes/a2/xr-traffic.cc codes/a2/plot_dist.py ~/ns3-work/
 
 docker run -it --name ns3 -v ~/ns3-work:/work ns3lab
 ```
@@ -177,10 +177,6 @@ Because jitter is added to a *fixed* schedule, the frame inter-arrival time is `
 **Dual-eye-buffer variant.** Table 6.5.3.1-1 is titled *"dual eye buffer frame size"*: mean M = R·10⁶ / (2F) / 8, one frame per eye. To model one eye buffer, run with half the bitrate, e.g. `--dataRateMbps=15` for a 30 Mbit/s stream (M = 31 250 B); the other eye is an independent, identical stream.
 
 **Two levels, two things to verify.** The 3GPP model is defined at the **frame** level (size and arrival time). Packet sizes are a *consequence* of cutting frames into 1400 B pieces: almost every packet is exactly 1400 B, and one packet per frame carries the remainder. Step 7 checks both.
-
-### Using AI to generate the model
-
-The task allows AI-generated traffic models. `xr-traffic.cc` is one: it was generated with an AI assistant, then run, compared against the spec text, and corrected three times — see rows 6–8 of [What broke](#8-what-broke-and-fixes). Two of those errors (wrong truncation, wrong jitter structure) were invisible in the plots and only found by **reading the clauses above**. If you generate your own variant, keep three rules: (1) take the model and its parameters from the spec, not from the AI; (2) check that what the network carries matches what the generator logged (step 7, PCAP cross-check); (3) verify the output distributions against the model.
 
 ---
 
