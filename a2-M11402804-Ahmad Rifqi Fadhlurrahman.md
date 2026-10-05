@@ -11,6 +11,7 @@ Every file used here is in the [`codes/a2/`](codes/a2/) folder:
 | [`codes/a2/Dockerfile`](codes/a2/Dockerfile) | Ubuntu 24.04 image with the ns-3 toolchain, `tshark`, and Python plotting |
 | [`codes/a2/xr-traffic.cc`](codes/a2/xr-traffic.cc) | ns-3 program: 3GPP XR video traffic generator + PCAP + FlowMonitor + PDB check |
 | [`codes/a2/plot_dist.py`](codes/a2/plot_dist.py) | PDF/CDF of frame size, jitter, inter-arrival and packet size vs the model, with KS tests |
+| [`codes/a2/a2-xr-0-0.pcap`](codes/a2/a2-xr-0-0.pcap) | Sender-side capture from the reference run (38.8 MB, SHA256 `3f3c9ae5…8b12b5`) — the file shown in the Wireshark screenshots |
 
 The task maps to the steps like this:
 
