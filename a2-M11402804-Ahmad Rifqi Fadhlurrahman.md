@@ -415,3 +415,15 @@ The task asks for anything that broke. All of these happened in the reference ru
 - [x] Wireshark screenshots of `a2-xr-0-0.pcap`.
 - [x] PCAP vs CSV cross-check (same packet count and bytes).
 - [x] `dist_frame_size.png`, `dist_frame_jitter.png`, `dist_frame_iat.png`, `dist_packet.png` with KS results.
+
+---
+
+## Link to submission files
+
+- **Presentation:** [a2-M11402804-AhmadRifqi.pptx](assets/ppt/a2-M11402804-AhmadRifqi.pptx)
+- **Recordings:** [Presentation recordings](https://drive.google.com/file/d/1EfN8wq0xRIHK-tUJaNcTP_BPKkJatDBB/view?usp=sharing)
+- **Rehearsal:**
+
+![Rehearsal report 1](assets/img/rehearse/a2-rehearse-pic1.png)
+
+![Rehearsal report 2](assets/img/rehearse/a2-rehearse-pic2.png)
