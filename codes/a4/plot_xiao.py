@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Reproduce the numerical results of Xiao (IEEE TWC 2005), Figs. 2-11 and Table I,
-with xiao_model.py. Writes PNGs to assets/img/a3/."""
+with xiao_model.py. Writes PNGs to assets/img/a4/."""
 import os
 
 import matplotlib
@@ -11,7 +11,7 @@ import numpy as np
 
 from xiao_model import solve
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "..", "assets", "img", "a3")
+OUT = os.path.join(os.path.dirname(__file__), "..", "..", "assets", "img", "a4")
 os.makedirs(OUT, exist_ok=True)
 C0, C1, TOT = "#2f63e6", "#d97a2b", "#555555"
 

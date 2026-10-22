@@ -2,7 +2,7 @@
 """Compare the ns-3 reproduction of Kong et al. (IEEE JSAC 2004) with the paper's Fig. 7-8.
 
 Inputs : kong_ns3_sweep.csv (kong-edca runs, M = 5..30, 5 seeds), delays_n15.csv (M = 15)
-Output : assets/img/a3/kong_ns3_vs_paper.png
+Output : assets/img/a4/kong_ns3_vs_paper.png
 Paper values are read off Fig. 7 (analysis curves) by eye: approximate, +/- ~0.01 / ~3 ms.
 """
 import os
@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "..", "..", "assets", "img", "a3")
+OUT = os.path.join(HERE, "..", "..", "assets", "img", "a4")
 AC3, AC1 = "#2f63e6", "#d97a2b"
 
 M = np.array([5, 10, 15, 20, 25, 30])

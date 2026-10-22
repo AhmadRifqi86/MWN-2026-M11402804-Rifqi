@@ -2,28 +2,19 @@
 
 **Path:** Basic — 802.11e reproduction · **Topic:** Optimal QoS policy under different traffic models
 
-This note studies two IEEE papers that model how IEEE 802.11e gives different traffic classes different service, and turns them into experiments that can be run:
+This note studies two IEEE papers that model how IEEE 802.11e gives different traffic classes different service. For each paper it presents the problem, the system model, the experimental results the paper reports, and the ns-3 settings needed to reproduce them; it ends with a revised project proposal.
 
 | # | Paper | Venue | What it gives this project |
 |---|---|---|---|
 | P1 | Z. Kong, D. H. K. Tsang, B. Bensaou, D. Gao, "Performance analysis of IEEE 802.11e contention-based channel access" | IEEE JSAC, vol. 22, no. 10, pp. 2095–2106, Dec. 2004. DOI [10.1109/JSAC.2004.836019](https://doi.org/10.1109/JSAC.2004.836019) | The EDCA model with **AIFS, CW and virtual collisions**; a simulation baseline to reproduce in ns-3 |
 | P2 | Y. Xiao, "Performance analysis of priority schemes for IEEE 802.11 and IEEE 802.11e wireless LANs" | IEEE Trans. Wireless Commun., vol. 4, no. 4, pp. 1506–1515, Jul. 2005. DOI [10.1109/TWC.2005.850328](https://doi.org/10.1109/TWC.2005.850328) | A simpler model of the **backoff knobs** (initial window, window-increasing factor, retry limit) with **frame-dropping probability**; exact numbers to validate against |
 
-Both papers were not only read but **partly reproduced** for this note:
-
-- P2's analytical model was re-implemented and checked against the paper's Table I ([`codes/a3/xiao_model.py`](codes/a3/xiao_model.py)).
-- P1's simulation scenario was rebuilt in **ns-3.48** with the paper's Table I settings and run for 6 network sizes × 5 seeds ([`codes/a3/kong-edca.cc`](codes/a3/kong-edca.cc)).
-
-Doing so exposed settings the papers never state and two places where their numbers do not add up; those findings shaped the [revised proposal](#4-revised-project-proposal).
+Reading the papers closely, with the reproduction in mind, exposed settings they never state and places where their numbers do not add up (§2.5, §3.4); those points shaped the [revised proposal](#4-revised-project-proposal). The reproduction itself is the A4 baseline.
 
 | File | Purpose |
 |---|---|
-| [`codes/a3/xiao_model.py`](codes/a3/xiao_model.py) | P2's analytical model, eqs. (1)–(21); prints the Table I comparison |
-| [`codes/a3/plot_xiao.py`](codes/a3/plot_xiao.py) | Reproduces P2's Figs. 2–5, 7, 9 and Table I points |
-| [`codes/a3/kong-edca.cc`](codes/a3/kong-edca.cc) | ns-3.48 scenario with P1's Table I settings (802.11b EDCA, RTS/CTS, saturated) |
-| [`codes/a3/kong_ns3_sweep.csv`](codes/a3/kong_ns3_sweep.csv), [`delays_n15.csv`](codes/a3/delays_n15.csv) | Raw ns-3 results: M = 5…30, seeds 1–5; access-delay samples at M = 15 |
-| [`codes/a3/plot_kong.py`](codes/a3/plot_kong.py) | Compares the ns-3 runs with P1's Figs. 7–8 |
 | [`codes/a3/draw_system_models.py`](codes/a3/draw_system_models.py) | Draws the system-model diagrams |
+| [`codes/a3/build_slides.py`](codes/a3/build_slides.py) | Builds the A3 slide deck |
 
 ---
 
@@ -74,7 +65,7 @@ Validation is against **NS-2**. All numbers below are read off the paper's figur
 
 ### 2.4 ns-3 settings needed to reproduce Fig. 7–8
 
-| Item | Paper (Table I and §V) | ns-3.48 setting used | Note |
+| Item | Paper (Table I and §V) | ns-3.48 setting | Note |
 |---|---|---|---|
 | Topology | infrastructure, M stations, ideal channel | 1 AP + M STAs on a 5 m circle, `YansWifiChannel` default, `ConstantPositionMobilityModel` | no hidden nodes, no frame errors at 5 m |
 | Traffic model | saturated, AC3 + AC1 per station, payload 1000 B | 2 × `PacketSocketClient` per STA, 1000 B every 2 ms (4 Mb/s, well above the attainable rate), `Priority` 6 (→ AC_VO) and 1 (→ AC_BK) | AC3 ↦ AC_VO, AC1 ↦ AC_BK |
@@ -88,26 +79,15 @@ Validation is against **NS-2**. All numbers below are read off the paper's figur
 | Seeds / runs | **not reported** | `RngRun` 1–5, mean ± 95 % CI | |
 | Metrics | throughput / 11 Mb/s; access delay | payload received at the AP / 10 s / 11 Mb/s; per STA and AC, head-of-line → ACK time (`AckedMpdu`, `DroppedMpdu` traces) | |
 
-Run: `./ns3 run "kong-edca --nSta=15 --seed=1"`; the sweep used `M ∈ {5, 10, 15, 20, 25, 30}` × seeds 1–5.
+Sweep: `M ∈ {5, 10, 15, 20, 25, 30}` × seeds 1–5. The scenario and its results belong to the A4 baseline reproduction.
 
-### 2.5 What the ns-3 reproduction showed
+### 2.5 Points to check when reproducing
 
-![ns-3 reproduction of Kong Fig. 7-8: throughput, AC3 share, delay, delay CDF](assets/img/a3/kong_ns3_vs_paper.png)
+Working through the paper's own numbers shows what a reproduction has to pin down:
 
-| M | S_AC3 ns-3 | S_AC1 ns-3 | AC3 share ns-3 / paper | D_AC3 ns-3 [ms] | D_AC1 ns-3 [ms] |
-|---|---|---|---|---|---|
-| 5 | 0.306 | 0.078 | 0.80 / 0.83 | 11.9 | 46 |
-| 10 | 0.309 | 0.068 | 0.82 / 0.86 | 23.5 | 107 |
-| 15 | 0.311 | 0.063 | 0.83 / 0.88 | 35.0 | 171 |
-| 20 | 0.311 | 0.059 | 0.84 / 0.90 | 46.8 | 240 |
-| 25 | 0.309 | 0.058 | 0.84 / 0.90 | 58.8 | 303 |
-| 30 | 0.308 | 0.057 | 0.85 / 0.91 | 70.8 | 372 |
-
-The **qualitative** result reproduces: AC3 throughput is flat in M, AC1's shrinks, AC1's delay grows linearly and much faster than AC3's, and AC3's share of the channel rises with M. At M = 15, 91 % of AC3 frames but only 63 % of AC1 frames are delivered within 100 ms, the same contrast as the paper's Fig. 8b. The **absolute** numbers do not, for reasons that matter for A4:
-
-- **F1 — The paper's PHY is idealized.** Table I lists the PHY header as "192 bits" and uses one 11 Mb/s rate, i.e. the header costs ≈ 17 µs. Real 802.11b (and ns-3) sends the long PLCP preamble + header at 1 Mb/s: **192 µs**, on every RTS, CTS, DATA and ACK. An RTS-CTS-DATA-ACK cycle takes ≈ 977 µs in the paper's accounting but ≈ 1 475 µs in reality, which caps the normalized throughput at ≈ 0.74 versus ≈ 0.49. The paper's total of ≈ 0.70 is only reachable with the idealized header, so ns-3's AC3 throughput is about half. The AC3 *share* (which cancels the overhead) and AC1's throughput (≈ 0.06–0.08, close to the paper) are the fair comparisons.
-- **F2 — The delay definition is ambiguous.** Under saturation, Little's law fixes the mean head-of-line delay at 1 / (frames per second per station). For ns-3 at M = 30 that is 30 × 727 µs / 0.31 ≈ 70 ms — exactly what was measured. Applied to the paper's own AC3 throughput (≈ 0.605) the same bound is ≈ 36 ms, yet Fig. 7b shows ≈ 22 ms. Either many AC3 frames are dropped at the (unreported) retry limit, or "from the first transmission attempt" excludes the initial backoff. A4 must fix one definition and state it.
-- **F3 — Association must finish before saturation.** In the first ns-3 runs, traffic started at 0.2 s. At M = 30, association frames competed with saturated data, some stations were not yet known to the AP, and their ACKed frames were discarded: throughput fell to 0.24 in 2 of 3 seeds. Starting traffic at 2 s (all 30 associated) fixed it. The paper's NS-2 runs had no association phase, so this is a reproduction pitfall, not a paper error.
+- **F1 — The paper's PHY is idealized.** Table I lists the PHY header as "192 bits" and uses one 11 Mb/s rate, i.e. the header costs ≈ 17 µs. Real 802.11b (and ns-3) sends the long PLCP preamble + header at 1 Mb/s: **192 µs**, on every RTS, CTS, DATA and ACK. An RTS-CTS-DATA-ACK cycle takes ≈ 977 µs in the paper's accounting but ≈ 1 475 µs in reality, which caps the normalized throughput at ≈ 0.74 versus ≈ 0.49. The paper's total of ≈ 0.70 is only reachable with the idealized header, so an ns-3 run with the standard 802.11b PHY should be expected to give roughly half the AC3 throughput. The AC3 *share* of the total throughput, which cancels the overhead, is the fair comparison.
+- **F2 — The delay definition is ambiguous.** Under saturation, Little's law fixes the mean head-of-line delay at 1 / (frames per second per station). Applied to the paper's own AC3 throughput at M = 30 (≈ 0.605), this gives ≈ 36 ms, yet Fig. 7b shows ≈ 22 ms. Either many AC3 frames are dropped at the (unreported) retry limit, or "from the first transmission attempt" excludes the initial backoff. The reproduction must fix one definition and state it.
+- **F3 — Association must finish before saturation.** The paper's NS-2 runs had no association phase. In ns-3 the stations associate first, and saturated traffic that starts before association completes competes with the association frames. Traffic should start only after all M stations are associated, with statistics collected after that.
 
 ---
 
@@ -148,30 +128,11 @@ Validation is against **OPNET 8.0A** simulation with > 95 % confidence intervals
 | Figs. 5–8 | W_{1,0} = 16…56, σ₁ = 1.6…2.6 | Each knob alone moves bandwidth from one class to the other, and total throughput rises slightly (fewer collisions). |
 | Figs. 9–11 | L_{1,retry} = 0…8 | A smaller retry limit gives better throughput and delay at the cost of more dropped frames — suited to loss-tolerant, delay-sensitive traffic such as voice. |
 
-### 3.4 Analytical reproduction
+### 3.4 Points to check when reproducing
 
-[`xiao_model.py`](codes/a3/xiao_model.py) implements eqs. (1)–(21) with standard 802.11a timing at 6 Mb/s (slot 9 µs, SIFS 16 µs, DIFS 34 µs, 20 µs preamble + SIGNAL, 28-byte MAC header + FCS, 14-byte ACK):
-
-| | n | this model | paper analysis | error | paper's own sim-vs-analysis error |
-|---|---|---|---|---|---|
-| S, class 0 | 10 | 0.5150 | 0.5208 | −1.1 % | −0.9 % |
-| S, class 1 | 10 | 0.1538 | 0.1547 | −0.6 % | −1.0 % |
-| delay, class 0 | 10 | 24.4 ms | 25.1 ms | −2.6 % | +1.8 % |
-| delay, class 1 | 10 | 85.9 ms | 86.5 ms | −0.7 % | +2.2 % |
-| S, class 0 | 30 | 0.4585 | 0.4659 | −1.6 % | −0.5 % |
-| S, class 1 | 30 | 0.1004 | 0.1013 | −0.9 % | −0.5 % |
-| delay, class 0 | 30 | 66.7 ms | 67.0 ms | −0.4 % | +1.1 % |
-| delay, class 1 | 30 | 343.3 ms | 342.3 ms | +0.3 % | +1.9 % |
-
-The mean error is **1.0 %**, the same size as the paper's own simulation-vs-analysis error. Testing other plausible PHY constants and integer rounding of W_{i,j} gets no closer than ≈ 0.6 %: the paper defers its exact PHY timing to its references [5], [15], so this residual cannot be closed from the paper alone.
-
-![Xiao Figs. 2-4 reproduced with Table I points](assets/img/a3/xiao_fig2-4_vs_stations.png)
-
-![Xiao Figs. 5, 7, 9 reproduced: one knob at a time](assets/img/a3/xiao_fig5-7-9_knobs.png)
-
-Figs. 2–5 and 9 match the paper's curves (e.g. class 1 delay ≈ 487 ms vs ≈ 485 ms at n = 40; dropping probability of class 0 ≈ 0.093 at n = 40). One figure does not:
-
-- **F4 — Fig. 7 is not reproducible from the stated parameters.** At σ₁ = 1.6 the paper shows class 0 at ≈ 0.18; the model gives 0.24, and no rounding of W or removing the CW_max cap closes the gap. The paper is also inconsistent with itself: the identical configuration (σ₀ = σ₁ = 2, L = 7, W = 16, n = 10) appears at ≈ 0.34 in Figs. 5 and 9 but at ≈ 0.325 in Fig. 7. Fig. 7 was most likely produced with a setting the paper does not report.
+- **Unreported PHY timing.** The paper names 802.11a at 6 Mb/s but defers slot, SIFS, DIFS and header lengths to its references [5], [15]. The standard 802.11a values (slot 9 µs, SIFS 16 µs, DIFS 34 µs, 20 µs preamble + SIGNAL) are the natural choice, but small differences in these constants will show up as percent-level differences against Table I.
+- **F4 — Fig. 7 is inconsistent with the other figures.** The identical configuration (σ₀ = σ₁ = 2, L = 7, W = 16, n = 10) appears at ≈ 0.34 class-0 throughput in Figs. 5 and 9 but at ≈ 0.325 in Fig. 7. Fig. 7 was most likely produced with a setting the paper does not report, so it is a weak target for validation; Table I and Figs. 2–5 and 9 are better ones.
+- **σ is not an ns-3 parameter** (see §3.5): reproducing the σ experiments in ns-3 needs a patch.
 
 ### 3.5 ns-3 settings needed to reproduce
 
@@ -200,10 +161,10 @@ Both papers — and almost every model in their family — assume **saturation**
 | | A1 proposal | Revised (A3) | Why it changed |
 |---|---|---|---|
 | Technology | IEEE 802.16 OFDMA connection admission control | **IEEE 802.11e EDCA** | The course path is *Basic — 802.11e*. ns-3.48 has **no WiMAX module** (checked: `src/` has no `wimax`), so the A1 plan could not be reproduced in A4; ns-3's `wifi` module implements EDCA fully. |
-| Base papers | El Bouchti, El Kafhali & Haqiq — published in IJCSIS 2011, **not an IEEE venue** | Kong et al. (IEEE JSAC 2004) and Xiao (IEEE TWC 2005) | A3 requires IEEE papers; both come with validated models and reproducible baselines (§2.5, §3.4). |
+| Base papers | El Bouchti, El Kafhali & Haqiq — published in IJCSIS 2011, **not an IEEE venue** | Kong et al. (IEEE JSAC 2004) and Xiao (IEEE TWC 2005) | A3 requires IEEE papers; both come with validated models and baselines that can be reproduced in ns-3 (§2.4, §3.5). |
 | QoS lever ("policy") | one admission threshold C | **per-AC EDCA parameters**: CWmin, CWmax, AIFSN, retry limit (σ optional) | These are exactly the knobs 802.11e exposes, and P1/P2 quantify their effect. |
 | Traffic model | two-state MMPP with time-of-day λ₁(t) | saturated (baseline) → Poisson → two-state MMPP → **3GPP XR video** (A2 generator) → time-of-day load λ(t) | The papers' saturation assumption is the gap; the MMPP and λ(t) ideas from A1 and the XR model from A2 are reused. |
-| Method | DTMC solved numerically + ns-3 WiMAX cross-check | P2's analytical model (implemented, 1 % from the paper) + **ns-3 802.11e simulation** (P1's scenario, implemented) | Both tools now exist and are validated; ns-3 is protocol-accurate where the papers idealize (finding F1). |
+| Method | DTMC solved numerically + ns-3 WiMAX cross-check | P2's analytical model + **ns-3 802.11e simulation** (P1's scenario) | The analytical model is fast for parameter sweeps; ns-3 is protocol-accurate where the papers idealize (F1). |
 | Metrics | blocking, drop probability, delay, throughput | per-AC throughput, **mean and 95th-percentile access delay**, frame-dropping probability, **delay-budget violations**, starvation of the lowest AC | Delay tails and budget violations matter for XR (10 ms budget, A2); P1's starvation result makes fairness a metric. |
 | Kept from A1 | — | time-varying load λ(t); quasi-static vs dynamic analysis; convexity argument (averaging the load understates delay) | These ideas do not depend on the radio technology. |
 
@@ -214,7 +175,7 @@ Both papers — and almost every model in their family — assume **saturation**
 **Research question:** Is the EDCA parameter set that performs best under saturation still the best when traffic is non-saturated, bursty or frame-based? If not, which set is best for each traffic model, and how much QoS does the saturation-tuned set lose?
 
 **Method.**
-1. **Baseline (A4):** reproduce P1's Fig. 7 in ns-3 with fixed definitions of throughput and access delay (F1, F2), plus P2's Table I and Figs. 2–4 with the analytical model (done) and in ns-3.
+1. **Baseline (A4):** reproduce P1's Fig. 7 in ns-3 with fixed definitions of throughput and access delay (F1, F2), plus P2's Table I and Figs. 2–4 with the analytical model and in ns-3.
 2. **Traffic models:** the same EDCA network loaded with saturated, Poisson, MMPP and 3GPP XR video traffic (voice in AC_VO, XR video in AC_VI, background in AC_BE), and a time-of-day load λ(t).
 3. **Policy search:** for each traffic model, sweep the per-AC parameters (CWmin, CWmax, AIFSN, retry limit) and select the set that maximizes total throughput subject to QoS constraints — e.g. XR video delay-budget violations ≤ 1 % and no AC below a minimum throughput.
 4. **Comparison:** the per-traffic-model optimum versus (a) the 802.11e default EDCA parameters and (b) the saturation-optimal set.
@@ -226,17 +187,8 @@ Both papers — and almost every model in their family — assume **saturation**
 ## 5. Reproducing this note
 
 ```bash
-# P2 analytical model (host, Python 3 with numpy, scipy, matplotlib)
-cd codes/a3
-python3 xiao_model.py          # Table I comparison
-python3 plot_xiao.py           # assets/img/a3/xiao_*.png
-
-# P1 in ns-3.48 (inside the A2 container, see a2-M11402804-…md)
-cp codes/a3/kong-edca.cc ~/ns3-work/ns-3-dev/scratch/
-./ns3 run "kong-edca --nSta=15 --seed=1"                            # one point
-./ns3 run "kong-edca --nSta=15 --seed=1 --delayCsv=delays_n15.csv"  # delay CDF
-python3 codes/a3/plot_kong.py                                       # assets/img/a3/kong_ns3_vs_paper.png
-python3 codes/a3/draw_system_models.py                              # system-model diagrams
+python3 codes/a3/draw_system_models.py   # assets/img/a3/*_system_model.png
+python3 codes/a3/build_slides.py         # assets/ppt/a3-M11402804-AhmadRifqi.pptx
 ```
 
 ## References
