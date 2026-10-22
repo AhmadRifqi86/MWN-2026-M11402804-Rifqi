@@ -239,8 +239,8 @@ hline(s, MX, 5.75, CW, weight=1.2)
 _, tf = textbox(s, MX, 5.9, CW, 1.2)
 for i, (k, v) in enumerate([
         ("Student ", "M11402804 · Ahmad Rifqi Fadhlurrahman · Basic path: 802.11e"),
-        ("P1      ", "Kong, Tsang, Bensaou & Gao — IEEE JSAC, 2004"),
-        ("P2      ", "Y. Xiao — IEEE Trans. Wireless Commun., 2005")]):
+        ("Paper   ", "Kong, Tsang, Bensaou & Gao — IEEE JSAC, 2004"),
+        ("Paper   ", "Y. Xiao — IEEE Trans. Wireless Commun., 2005")]):
     p = para(tf, first=(i == 0), space_after=3)
     run(p, k, 12.5, INK, bold=True, font=MONO)
     run(p, v, 12.5, FAINT, font=MONO)
@@ -264,7 +264,7 @@ legend(s, 8.2, 2.45, 4.15, 3.0, "THE KNOBS PER CLASS", [
 
 # ---------------------------------------------------------------- 3 P1 problem
 s = slide()
-header(s, "02", "P1 · Kong et al. 2004", "IEEE JSAC 22(10)", "P1: the first full analytical model of EDCA")
+header(s, "02", "Kong et al. 2004", "IEEE JSAC 22(10)", "Kong et al.: first full analytical EDCA model")
 cw3 = (CW - 0.4) / 3
 card(s, MX, 2.4, cw3, 3.9, "Problem", [
     "EDCA had been studied only by simulation.",
@@ -281,13 +281,13 @@ card(s, MX + 2 * (cw3 + 0.2), 2.4, cw3, 3.9, "Challenges", [
     "Coupled non-linear fixed point; delay needs a recursion."], color=PEAK)
 
 # ---------------------------------------------------------------- 4 P1 system model
-image_slide("03", "P1 · System model", "3-D Markov chain per AC",
-            "P1 system model: saturated BSS, two ACs per station",
+image_slide("03", "Kong et al. · System model", "3-D Markov chain per AC",
+            "System model: saturated BSS, two ACs per station",
             "kong_system_model.png")
 
 # ---------------------------------------------------------------- 5 P1 ns-3 settings
 s = slide()
-header(s, "04", "P1 · ns-3 settings", "ns-3.48 · kong-edca.cc", "Rebuilding P1's experiment in ns-3.48")
+header(s, "04", "Kong et al. · ns-3 settings", "ns-3.48 · kong-edca.cc", "Rebuilding Kong et al.'s experiment in ns-3.48")
 table(s, MX, 2.35, CW, [2.3, 3.6, 5.5], [
     ["Item", "Paper (Table I)", "ns-3.48 setting"],
     ["Topology", "M stations → AP, ideal channel", "1 AP + M STAs on a 5 m circle, M = 5…30"],
@@ -302,7 +302,7 @@ table(s, MX, 2.35, CW, [2.3, 3.6, 5.5], [
 
 # ---------------------------------------------------------------- 6 P1 results
 s = slide()
-header(s, "05", "P1 · Results", "6 sizes × 5 seeds", "Prioritization reproduces; absolute numbers do not", size=28)
+header(s, "05", "Kong et al. · Results", "6 sizes × 5 seeds", "Prioritization reproduces; absolute numbers do not", size=28)
 picture(s, "kong_ns3_vs_paper.png", MX, 2.3, w=CW)
 bullets(s, MX, 2.3 + CW / 4.318 + 0.3, CW, 2.2, [
     [("F1 — idealized PHY: ", "b"), ("the paper sends the 192-bit header at 11 Mb/s (17 µs); real 802.11b needs ", "n"), ("192 µs", "pk"), (". Max throughput 0.74 vs 0.49 — so compare AC3's ", "n"), ("share", "b"), (", which matches the trend.", "n")],
@@ -312,7 +312,7 @@ bullets(s, MX, 2.3 + CW / 4.318 + 0.3, CW, 2.2, [
 
 # ---------------------------------------------------------------- 7 P2 problem
 s = slide()
-header(s, "06", "P2 · Xiao 2005", "IEEE TWC 4(4)", "P2: three backoff knobs, with frame loss")
+header(s, "06", "Xiao 2005", "IEEE TWC 4(4)", "Xiao: three backoff knobs, with frame loss")
 card(s, MX, 2.4, cw3, 3.9, "Problem", [
     "DCF lets a voice frame wait arbitrarily long.",
     "Earlier priority schemes: simulation only, or models with an infinite retry limit.",
@@ -328,13 +328,13 @@ card(s, MX + 2 * (cw3 + 0.2), 2.4, cw3, 3.9, "Challenges", [
     "An accurate delay model."], color=PEAK)
 
 # ---------------------------------------------------------------- 8 P2 system model
-image_slide("07", "P2 · System model", "2-D Markov chain per class",
-            "P2 system model: N classes, one class per station",
+image_slide("07", "Xiao · System model", "2-D Markov chain per class",
+            "System model: N classes, one class per station",
             "xiao_system_model.png")
 
 # ---------------------------------------------------------------- 9 P2 reproduction
 s = slide()
-header(s, "08", "P2 · Reproduction", "xiao_model.py", "P2's model reproduced within 1 % of its Table I")
+header(s, "08", "Xiao · Reproduction", "xiao_model.py", "Xiao's model within 1 % of its Table I")
 picture(s, "xiao_fig2-4_vs_stations.png", MX, 2.3, w=CW)
 bullets(s, MX, 2.3 + CW / 3.571 + 0.25, 6.6, 1.5, [
     [("Equations (1)–(21) implemented, 802.11a at 6 Mb/s, 1024-byte frames.", "n")],
@@ -348,7 +348,7 @@ legend(s, 7.85, 2.3 + CW / 3.571 + 0.1, 4.5, 1.6, "TABLE I — MODEL VS PAPER", 
 
 # ---------------------------------------------------------------- 10 P2 knobs
 s = slide()
-header(s, "09", "P2 · One knob at a time", "n₀ = n₁ = 10", "Each knob moves bandwidth between the classes", size=27)
+header(s, "09", "Xiao · One knob at a time", "n₀ = n₁ = 10", "Each knob moves bandwidth between the classes", size=27)
 picture(s, "xiao_fig5-7-9_knobs.png", MX, 2.3, w=CW)
 bullets(s, MX, 2.3 + CW / 3.571 + 0.3, CW, 2.0, [
     [("Figs. 5 and 9 reproduce; ", "n"), ("F4 — Fig. 7 does not", "pk"), (": the stated σ settings give 0.24 where the paper shows 0.18, and the same configuration reads 0.325 in Fig. 7 but 0.34 in Figs. 5 and 9.", "n")],
@@ -364,8 +364,8 @@ table(s, MX, 2.3, CW, [1.9, 3.0, 3.0, 3.5], [
     ["Base papers", "El Bouchti et al. (IJCSIS)", "Kong (JSAC), Xiao (TWC)", "A3 requires IEEE; validated baselines"],
     ["QoS lever", "one threshold C", "CWmin, CWmax, AIFSN, retry per AC", "the knobs 802.11e exposes"],
     ["Traffic", "MMPP with λ₁(t)", "saturated → Poisson → MMPP → 3GPP XR → λ(t)", "!both papers assume saturation"],
-    ["Tools", "DTMC + ns-3 WiMAX", "P2 model + ns-3 wifi (both built)", "both validated in this review"],
-    ["Metrics", "blocking, drop, delay", "+ 95th-pct delay, budget violations, starvation", "XR has a 10 ms budget; P1 shows starvation"],
+    ["Tools", "DTMC + ns-3 WiMAX", "Xiao model + ns-3 wifi (both built)", "both validated in this review"],
+    ["Metrics", "blocking, drop, delay", "+ 95th-pct delay, budget violations, starvation", "XR has a 10 ms budget; Kong et al. shows starvation"],
 ], size=11.5, head_size=12, row_h=0.62)
 
 # ---------------------------------------------------------------- 12 proposal
@@ -377,7 +377,7 @@ p = para(tf, first=True, space_after=0, line=1.12)
 run(p, "Research question  ", 13, ACCENT, bold=True, font=MONO)
 run(p, "Is the EDCA parameter set that is best under saturation still best for non-saturated, "
        "bursty or frame-based traffic — and how much QoS does it lose if not?", 15, INK)
-steps = [("A4 · Baseline", "P1 Fig. 7 in ns-3 with fixed throughput and delay definitions; P2 Table I in ns-3."),
+steps = [("A4 · Baseline", "Kong et al. Fig. 7 in ns-3 with fixed throughput and delay definitions; Xiao Table I in ns-3."),
          ("Traffic models", "Saturated, Poisson, MMPP, 3GPP XR video (A2) in AC_VI, time-of-day λ(t)."),
          ("Policy search", "Sweep CWmin, CWmax, AIFSN, retry per AC; maximize throughput s.t. ≤ 1 % XR budget violations, no starved AC."),
          ("Compare", "Per-traffic optimum vs 802.11e defaults vs the saturation-optimal set.")]
