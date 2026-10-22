@@ -234,8 +234,7 @@ run(p, "How IEEE 802.11e ", 40, INK, bold=True, font=HEAD)
 run(p, "prioritizes", 40, ACCENT, bold=True, font=HEAD)
 run(p, " traffic — and what the models assume", 40, INK, bold=True, font=HEAD)
 p = para(tf, space_after=0, line=1.2)
-run(p, "Two IEEE papers, read, partly reproduced (analytical model and ns-3), "
-       "and turned into a revised project proposal.", 19, MUTED)
+run(p, "Partly reproducing two IEEE papers.", 19, MUTED)
 hline(s, MX, 5.75, CW, weight=1.2)
 _, tf = textbox(s, MX, 5.9, CW, 1.2)
 for i, (k, v) in enumerate([
@@ -337,11 +336,11 @@ image_slide("07", "P2 · System model", "2-D Markov chain per class",
 s = slide()
 header(s, "08", "P2 · Reproduction", "xiao_model.py", "P2's model reproduced within 1 % of its Table I")
 picture(s, "xiao_fig2-4_vs_stations.png", MX, 2.3, w=CW)
-bullets(s, MX, 2.3 + CW / 3.571 + 0.3, 6.6, 1.9, [
+bullets(s, MX, 2.3 + CW / 3.571 + 0.25, 6.6, 1.5, [
     [("Equations (1)–(21) implemented, 802.11a at 6 Mb/s, 1024-byte frames.", "n")],
     [("Class 0 wins throughput and delay, but drops more: ", "n"), ("9 % vs 2.4 %", "pk"), (" at n = 40 (smaller retry limit).", "n")],
 ], size=13.5, gap=7)
-legend(s, 7.85, 2.3 + CW / 3.571 + 0.25, 4.5, 1.95, "TABLE I — MODEL VS PAPER", [
+legend(s, 7.85, 2.3 + CW / 3.571 + 0.1, 4.5, 1.6, "TABLE I — MODEL VS PAPER", [
     ("mean |error|", "1.0 %  (8 values, n = 10 and 30)"),
     ("paper itself", "0.45–2.2 % sim vs analysis"),
     ("residual   ", "PHY constants not reported"),
