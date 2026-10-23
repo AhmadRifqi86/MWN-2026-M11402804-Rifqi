@@ -42,7 +42,7 @@
 2. Student ID: M11402804
 3. Department: Departement of Electronics and Computer Engineering
 4. Student status: NTUST Student
-5. Path: Basic — 802.11e reproduction
+5. Path: Advanced — own topic (IEEE 802.11e EDCA, ns-3 WiFi)
 6. Topic: Optimal QoS policy under different traffic models
 
 ## 2. Assignments
