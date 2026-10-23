@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build assets/ppt/a3-M11402804-AhmadRifqi.pptx (13 slides), same style as the A1/A2 decks.
+"""Build assets/ppt/a3-M11402804-AhmadRifqi.pptx (12 slides), same style as the A1/A2 decks.
 
 Run from anywhere:  python3 codes/a3/build_slides.py
 """
@@ -234,38 +234,22 @@ run(p, "How IEEE 802.11e ", 40, INK, bold=True, font=HEAD)
 run(p, "prioritizes", 40, ACCENT, bold=True, font=HEAD)
 run(p, " traffic — and what the models assume", 40, INK, bold=True, font=HEAD)
 p = para(tf, space_after=0, line=1.2)
-run(p, "Partly reproducing two IEEE papers.", 19, MUTED)
+run(p, "Two IEEE papers: system models, reported results and ns-3 settings.", 19, MUTED)
 hline(s, MX, 5.75, CW, weight=1.2)
-_, tf = textbox(s, MX, 5.9, CW, 1.2)
+_, tf = textbox(s, MX, 5.85, CW, 1.4)
 for i, (k, v) in enumerate([
-        ("Student ", "M11402804 · Ahmad Rifqi Fadhlurrahman · Basic path: 802.11e"),
+        ("Student ", "M11402804 · Ahmad Rifqi Fadhlurrahman · Advanced path: 802.11e EDCA"),
         ("Paper   ", "Kong, Tsang, Bensaou & Gao — IEEE JSAC, 2004"),
         ("Paper   ", "Y. Xiao — IEEE Trans. Wireless Commun., 2005")]):
     p = para(tf, first=(i == 0), space_after=3)
     run(p, k, 12.5, INK, bold=True, font=MONO)
     run(p, v, 12.5, FAINT, font=MONO)
 
-# ---------------------------------------------------------------- 2 background
-s = slide()
-header(s, "01", "Background", "802.11e EDCA", "EDCA: four queues, four sets of rules")
-bullets(s, MX, 2.45, 6.8, 4.7, [
-    [("Plain 802.11 (DCF) ", "b"), ("treats every frame the same: wait an idle DIFS, back off a random number of slots, double the window after a collision.", "n")],
-    [("802.11e EDCA ", "b"), ("splits traffic into four access categories — voice, video, best effort, background — each with its own queue and rules.", "n")],
-    [("A higher class waits less and backs off less, so it ", "n"), ("wins the channel more often", "pk"), (".", "n")],
-    [("Both papers ask: ", "b"), ("for a given set of rules, how much throughput and delay does each class get?", "n")],
-], size=15, gap=11)
-legend(s, 8.2, 2.45, 4.15, 3.0, "THE KNOBS PER CLASS", [
-    ("AIFS ", "idle wait before counting down"),
-    ("CWmin", "first backoff window"),
-    ("CWmax", "largest backoff window"),
-    ("Retry", "attempts before a frame is dropped"),
-    ("VC   ", "virtual collision: two queues of one station tie → the higher class sends"),
-], sym_size=11.5, desc_size=11.5)
-
-# ---------------------------------------------------------------- 3 P1 problem
-s = slide()
-header(s, "02", "Kong et al. 2004", "IEEE JSAC 22(10)", "Kong et al.: first full analytical EDCA model")
 cw3 = (CW - 0.4) / 3
+
+# ---------------------------------------------------------------- 6 Kong problem
+s = slide()
+header(s, "01", "Kong et al. 2004", "IEEE JSAC 22(10)", "Kong et al.: first full analytical EDCA model")
 card(s, MX, 2.4, cw3, 3.9, "Problem", [
     "EDCA had been studied only by simulation.",
     "DCF models (Bianchi) miss AIFS, per-class windows and virtual collisions.",
@@ -280,14 +264,14 @@ card(s, MX + 2 * (cw3 + 0.2), 2.4, cw3, 3.9, "Challenges", [
     "EDCA counts down in the last AIFS slot; finite retry limit.",
     "Coupled non-linear fixed point; delay needs a recursion."], color=PEAK)
 
-# ---------------------------------------------------------------- 4 P1 system model
-image_slide("03", "Kong et al. · System model", "3-D Markov chain per AC",
+# ---------------------------------------------------------------- 7 Kong system model
+image_slide("02", "Kong et al. · System model", "3-D Markov chain per AC",
             "System model: saturated BSS, two ACs per station",
             "kong_system_model.png")
 
 # ---------------------------------------------------------------- 5 P1 reported results
 s = slide()
-header(s, "04", "Kong et al. · Reported results", "NS-2 vs analysis", "AC3 is protected; AC1 pays for it", size=28)
+header(s, "03", "Kong et al. · Reported results", "NS-2 vs analysis", "AC3 is protected; AC1 pays for it", size=28)
 table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
     ["Figure", "Experiment", "Result reported in the paper"],
     ["Fig. 7", "one AC3 + one AC1 per station, M = 5…30", "AC3 throughput flat at ≈ 0.6; AC1 halves 0.12 → 0.06. AC1 delay ≈ 230 ms at M = 30, AC3 < 25 ms"],
@@ -299,8 +283,8 @@ table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
 
 # ---------------------------------------------------------------- 5 P1 ns-3 settings
 s = slide()
-header(s, "05", "Kong et al. · ns-3 settings", "ns-3.48", "Rebuilding Kong et al.'s experiment in ns-3.48")
-table(s, MX, 2.35, CW, [2.3, 3.6, 5.5], [
+header(s, "04", "Kong et al. · ns-3 settings", "ns-3.48", "Rebuilding Kong et al.'s experiments in ns-3.48", size=28)
+table(s, MX, 2.3, CW, [2.1, 3.9, 5.4], [
     ["Item", "Paper (Table I)", "ns-3.48 setting"],
     ["Topology", "M stations → AP, ideal channel", "1 AP + M STAs on a 5 m circle, M = 5…30"],
     ["Traffic", "saturated AC3 + AC1, 1000 B", "2 PacketSocketClients per STA (AC_VO, AC_BK), 4 Mb/s each"],
@@ -309,22 +293,23 @@ table(s, MX, 2.35, CW, [2.3, 3.6, 5.5], [
     ["CW", "AC3 15–127 · AC1 31–255", "MinCws / MaxCws on VO_Txop and BK_Txop"],
     ["Access", "RTS/CTS, one frame per TXOP", "RtsCtsThreshold 0 · TxopLimits 0"],
     ["Retry limit", "!not reported", "FrameRetryLimit 7 (ns-3 default)"],
-    ["Time / seeds", "!not reported", "13 s (stats 3–13 s) · seeds 1–5, 95 % CI"],
-], size=12, head_size=12.5, row_h=0.5)
+    ["Sweeps", "Fig. 9 CW[AC3] · Fig. 10 AIFS[AC1] 3–5 · Figs. 11–12 M₃/M₁", "VO CW {7,63},{15,127},{31,255} · BK AIFSN 2–4 · VO-only / BK-only STAs"],
+    ["Time / seeds", "!not reported", "33 s (stats 3–33 s) · seeds 1–10, 95 % CI"],
+], size=11.5, head_size=12.5, row_h=0.47)
 
 # ---------------------------------------------------------------- 7 P1 points to check
 s = slide()
-header(s, "06", "Kong et al. · Points to check", "before A4", "What the paper leaves for the reproduction to fix", size=28)
+header(s, "05", "Kong et al. · ns-3 settings", "not pinned down", "What the paper leaves open, and the ns-3 choice", size=28)
 bullets(s, MX, 2.4, CW, 4.6, [
-    [("F1 — idealized PHY: ", "b"), ("Table I sends the 192-bit PHY header at 11 Mb/s (≈ 17 µs); real 802.11b needs ", "n"), ("192 µs", "pk"), (" per frame. Max normalized throughput 0.74 vs 0.49, so compare AC3's ", "n"), ("share", "b"), (", not its absolute throughput.", "n")],
-    [("F2 — delay definition: ", "b"), ("Little's law on the paper's own AC3 throughput at M = 30 gives ≈ 36 ms, but Fig. 7b shows ≈ 22 ms — the definition must be fixed and stated.", "n")],
-    [("F3 — association: ", "b"), ("NS-2 had no association phase; in ns-3, saturated traffic must start only after all M stations are associated.", "n")],
+    [("PHY header: ", "b"), ("Table I sends the 192-bit PHY header at 11 Mb/s (≈ 17 µs); real 802.11b needs ", "n"), ("192 µs", "pk"), (" per frame. Max normalized throughput 0.74 vs 0.43, so compare AC3's ", "n"), ("share", "b"), (", not its absolute throughput.", "n")],
+    [("Delay definition: ", "b"), ("Little's law on the paper's own AC3 throughput at M = 30 gives ≈ 36 ms, but Fig. 7b shows ≈ 22 ms — the definition must be fixed and stated.", "n")],
+    [("Association: ", "b"), ("NS-2 had no association phase; in ns-3, saturated traffic must start only after all M stations are associated.", "n")],
     [("Not reported: ", "b"), ("retry limit, simulation time, number of seeds.", "pk")],
 ], size=16, gap=14)
 
 # ---------------------------------------------------------------- 7 P2 problem
 s = slide()
-header(s, "07", "Xiao 2005", "IEEE TWC 4(4)", "Xiao: three backoff knobs, with frame loss")
+header(s, "06", "Xiao 2005", "IEEE TWC 4(4)", "Xiao: three backoff knobs, with frame loss")
 card(s, MX, 2.4, cw3, 3.9, "Problem", [
     "DCF lets a voice frame wait arbitrarily long.",
     "Earlier priority schemes: simulation only, or models with an infinite retry limit.",
@@ -340,13 +325,13 @@ card(s, MX + 2 * (cw3 + 0.2), 2.4, cw3, 3.9, "Challenges", [
     "An accurate delay model."], color=PEAK)
 
 # ---------------------------------------------------------------- 8 P2 system model
-image_slide("08", "Xiao · System model", "2-D Markov chain per class",
+image_slide("07", "Xiao · System model", "2-D Markov chain per class",
             "System model: N classes, one class per station",
             "xiao_system_model.png")
 
 # ---------------------------------------------------------------- 10 P2 reported results
 s = slide()
-header(s, "09", "Xiao · Reported results", "OPNET vs analysis", "Each knob moves bandwidth between the classes", size=28)
+header(s, "08", "Xiao · Reported results", "OPNET vs analysis", "Each knob moves bandwidth between the classes", size=28)
 table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
     ["Figure", "Experiment", "Result reported in the paper"],
     ["Table I", "n₀ = n₁ = 10 and 30", "analysis vs OPNET within 0.45–2.2 %, e.g. class 0 throughput 0.5208 vs 0.5161 at n = 10"],
@@ -357,27 +342,28 @@ table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
 
 # ---------------------------------------------------------------- 11 P2 ns-3 settings
 s = slide()
-header(s, "10", "Xiao · ns-3 settings", "ns-3.48", "Rebuilding Xiao's experiment in ns-3.48")
-table(s, MX, 2.3, CW, [2.3, 3.6, 5.5], [
+header(s, "09", "Xiao · ns-3 settings", "ns-3.48", "Rebuilding Xiao's experiments in ns-3.48", size=28)
+table(s, MX, 2.2, CW, [2.1, 4.0, 5.3], [
     ["Item", "Paper", "ns-3.48 setting"],
     ["Topology / traffic", "n₀ + n₁ stations, saturated, 1024 B", "1 AP + (n₀ + n₁) STAs, one saturating client per STA"],
     ["PHY / access", "802.11a, 6 Mb/s, basic access", "OfdmRate6Mbps for data and control · RTS/CTS off"],
+    ["PHY timing", "!not stated", "802.11a defaults: slot 9 µs, SIFS 16 µs, DIFS 34 µs"],
     ["W₀, CWmax", "[16, 32], 1024", "MinCws {15}, {31} · MaxCws {1023}"],
     ["σ", "![1.7, 2]", "!not supported — patch Txop::UpdateFailedCw"],
     ["Retry limit", "[4, 7]", "FrameRetryLimit per STA (one class per STA)"],
+    ["Sweeps", "n = 5…40 · W₁,₀ 16…56 · σ₁ 1.6…2.6 · L₁ 0…8", "n₀ = n₁ ∈ {5…40} · class-1 MinCws, σ (patch), FrameRetryLimit"],
     ["Time / seeds", "!not reported (> 95 % CI)", "≥ 10 s after association · 10 seeds"],
-], size=12, head_size=12.5, row_h=0.46)
-bullets(s, MX, 5.75, CW, 1.4, [
-    [("PHY timing not stated: ", "b"), ("slot, SIFS, DIFS taken from the 802.11a standard.", "n")],
-    [("F4 — Fig. 7 is inconsistent: ", "pk"), ("the same configuration reads ≈ 0.325 in Fig. 7 but ≈ 0.34 in Figs. 5 and 9 — validate against Table I instead.", "n")],
-], size=13.5, gap=6)
+], size=11, head_size=12, row_h=0.4)
+bullets(s, MX, 6.35, CW, 0.8, [
+    [("Fig. 7 is a weak target: ", "pk"), ("the same configuration reads ≈ 0.325 there but ≈ 0.34 in Figs. 5 and 9 — validate against Table I.", "n")],
+], size=13, gap=4)
 
 # ---------------------------------------------------------------- 11 what changed
 s = slide()
-header(s, "11", "Revised proposal", "A1 → A3", "What changed from A1, and why")
-table(s, MX, 2.3, CW, [1.9, 3.0, 3.0, 3.5], [
+header(s, "10", "Revised proposal", "A1 → A3", "What changed from A1, and why")
+table(s, MX, 2.2, CW, [1.9, 3.0, 3.0, 3.5], [
     ["", "A1", "A3", "Why"],
-    ["Technology", "802.16 OFDMA, admission control", "802.11e EDCA", "basic path is 802.11e; ns-3.48 has no WiMAX"],
+    ["Technology", "802.16 OFDMA, admission control", "802.11e EDCA", "ns-3.48 has no WiMAX; same research question"],
     ["Base papers", "El Bouchti et al. (IJCSIS)", "Kong (JSAC), Xiao (TWC)", "A3 requires IEEE; validated baselines"],
     ["QoS lever", "one threshold C", "CWmin, CWmax, AIFSN, retry per AC", "the knobs 802.11e exposes"],
     ["Traffic", "MMPP with λ₁(t)", "saturated → Poisson → MMPP → 3GPP XR → λ(t)", "!both papers assume saturation"],
@@ -387,7 +373,7 @@ table(s, MX, 2.3, CW, [1.9, 3.0, 3.0, 3.5], [
 
 # ---------------------------------------------------------------- 12 proposal
 s = slide()
-header(s, "12", "Revised proposal", "final project", "Optimal EDCA parameters under realistic traffic", size=29)
+header(s, "11", "Revised proposal", "final project", "Optimal EDCA parameters under realistic traffic", size=29)
 rect(s, MX, 2.35, CW, 1.05, fill=CARD, line=HAIR, radius=0.08)
 _, tf = textbox(s, MX + 0.3, 2.5, CW - 0.6, 0.8, anchor=MSO_ANCHOR.MIDDLE)
 p = para(tf, first=True, space_after=0, line=1.12)
