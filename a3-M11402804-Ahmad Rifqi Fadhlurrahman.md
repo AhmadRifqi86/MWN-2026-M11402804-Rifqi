@@ -71,7 +71,7 @@ Sweep for Figs. 7–8: `M ∈ {5, 10, 15, 20, 25, 30}` × seeds 1–10; this is 
 
 Three settings the paper does not pin down, and how they are set:
 - **PHY header.** Table I lists the PHY header as "192 bits" at one 11 Mb/s rate, i.e. ≈ 17 µs. Real 802.11b (and ns-3) sends the long PLCP preamble + header at 1 Mb/s: **192 µs**, on every RTS, CTS, DATA and ACK. An RTS-CTS-DATA-ACK cycle (with AIFS[AC3]) takes ≈ 977 µs in the paper's accounting but ≈ 1 680 µs with the real 802.11b PHY, which caps the normalized throughput at ≈ 0.74 versus ≈ 0.43. With the standard PHY, ns-3 can be expected to give roughly half the AC3 throughput; the AC3 *share* of the total throughput, which cancels the overhead, is the fair comparison.
-- **Delay definition.** Under saturation, Little's law fixes the mean head-of-line delay at 1 / (frames per second per station). Applied to the paper's own AC3 throughput at M = 30 (≈ 0.605), this gives ≈ 36 ms, yet Fig. 7b shows ≈ 22 ms. Either many AC3 frames are dropped at the unreported retry limit, or "from the first transmission attempt" excludes the initial backoff. The reproduction must fix one definition and state it.
+- **Delay definition.** Under saturation, Little's law fixes the mean head-of-line delay at 1 / (frames per second per station). Applied to the paper's own AC3 throughput at M = 30 (≈ 0.605), this gives ≈ 36 ms, yet Fig. 7b shows ≈ 24 ms (analysis) and ≈ 17 ms (NS-2). Either many AC3 frames are dropped at the unreported retry limit, or "from the first transmission attempt" excludes the initial backoff. The reproduction must fix one definition and state it.
 - **Association.** The paper's NS-2 runs had no association phase. In ns-3 the stations associate first, so saturated traffic must start only after all M stations are associated, with statistics collected after that.
 
 ---
@@ -159,7 +159,7 @@ Both papers assume **saturation**: every queue always has a frame. Their paramet
 **Research question:** Is the EDCA parameter set that performs best under saturation still the best when traffic is non-saturated, bursty or frame-based? If not, which set is best for each traffic model, and how much QoS does the saturation-tuned set lose?
 
 **Method.**
-1. **Baseline (A4):** reproduce Kong et al.'s Fig. 7 in ns-3 with fixed definitions of throughput and access delay (§1.4), plus Xiao's Table I and Figs. 2–4 with the analytical model and in ns-3.
+1. **Baseline (A4):** reproduce Kong et al.'s Fig. 7 in ns-3 with fixed definitions of throughput and access delay (§1.4), plus Xiao's Table I and Figs. 2–4 with the analytical model (Xiao in ns-3 needs a patch for σ and follows in the project).
 2. **Traffic models:** the same EDCA network loaded with saturated, Poisson, MMPP and 3GPP XR video traffic (voice in AC_VO, XR video in AC_VI, background in AC_BE), and a time-of-day load λ(t).
 3. **Policy search:** for each traffic model, sweep the per-AC parameters (CWmin, CWmax, AIFSN, retry limit) and select the set that maximizes total throughput subject to QoS constraints — e.g. XR video delay-budget violations ≤ 1 % and no AC below a minimum throughput.
 4. **Comparison:** the per-traffic-model optimum versus (a) the 802.11e default EDCA parameters and (b) the saturation-optimal set.

@@ -1,12 +1,14 @@
 /*
- * A3 — ns-3 reproduction setup for Kong, Tsang, Bensaou & Gao,
+ * A4 — ns-3 baseline reproduction of Kong, Tsang, Bensaou & Gao,
  * "Performance analysis of IEEE 802.11e contention-based channel access,"
  * IEEE JSAC 22(10):2095-2106, 2004 — Table I, Figs. 7-8.
  *
  * Scenario (paper Section V):
  *   - infrastructure BSS: 1 AP + M stations, ideal channel (all within 5 m of the AP)
  *   - every station has two saturated uplink ACs: AC3 (high priority) and AC1 (low)
- *   - IEEE 802.11b DSSS, 11 Mb/s data and control rate, long PHY header (192 us)
+ *   - IEEE 802.11b DSSS, 11 Mb/s data and control rate, long PHY header (192 us);
+ *     --idealPlcp=1 sends the 192-bit PLCP at 11 Mb/s (17.5 us) as in the paper's Table I
+ *     (needs dsss-ideal-plcp.patch applied to src/wifi/model/non-ht/dsss-phy.cc)
  *   - RTS/CTS for every data frame, one frame per TXOP (TXOP limit 0)
  *   - Table I: slot 20 us, SIFS = 1 slot, AIFS[AC3] = 3 slots, AIFS[AC1] = 4 slots,
  *              CW[AC3] = {15..127}, CW[AC1] = {31..255}, payload 1000 bytes
@@ -14,8 +16,11 @@
  *   AIFS = SIFS + AIFSN * slot, so AIFS = 3 slots with SIFS = 1 slot gives AIFSN = 2.
  *
  * Outputs (stdout, one CSV line):
- *   M,seed,S_ac3,S_ac1,D_ac3_ms,D_ac1_ms,n_ac3,n_ac1,associated
- *   S = normalized throughput (payload bits / time / 11 Mb/s), D = mean access delay.
+ *   M,seed,ideal_plcp,retry,S_ac3,S_ac1,D_ac3_ms,D_ac1_ms,n_ac3,n_ac1,drop_ac3,drop_ac1,
+ *   Dall_ac3_ms,Dall_ac1_ms,associated
+ *   S = normalized throughput (payload bits / time / 11 Mb/s), D = mean access delay of
+ *   delivered frames, drop = frames dropped at the retry limit, Dall = mean time at the head
+ *   of the queue over delivered and dropped frames.
  *   Access delay is measured per station and AC from the moment a frame becomes
  *   head-of-line (previous frame ACKed or dropped at the retry limit) until its ACK:
  *   under saturation the queue is never empty, so this is the paper's "first transmission
@@ -35,7 +40,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE("A3KongEdca");
+NS_LOG_COMPONENT_DEFINE("A4KongEdca");
 
 namespace
 {
@@ -46,6 +51,8 @@ double g_trafficStart = 2.0; // all stations are associated well before this
 uint64_t g_rxBytes[2] = {0, 0};                        // [AC3, AC1] at the AP
 std::map<std::pair<uint32_t, int>, double> g_lastAck;  // (station, ac) -> time of last ACK
 std::vector<double> g_delays[2];                       // access-delay samples (s)
+uint64_t g_drops[2] = {0, 0};                          // frames dropped at the retry limit
+double g_dropTime[2] = {0, 0};                         // head-of-line time of dropped frames (s)
 std::ofstream g_delayCsv;
 uint32_t g_assoc = 0;
 
@@ -96,8 +103,16 @@ OnDropped(uint32_t sta, WifiMacDropReason reason, Ptr<const WifiMpdu> mpdu)
     {
         return;
     }
-    g_lastAck[std::make_pair(sta, AcOf(mpdu->GetHeader().GetQosTid()))] =
-        Simulator::Now().GetSeconds();
+    int ac = AcOf(mpdu->GetHeader().GetQosTid());
+    double now = Simulator::Now().GetSeconds();
+    auto key = std::make_pair(sta, ac);
+    auto it = g_lastAck.find(key);
+    if (it != g_lastAck.end() && now >= g_warmup)
+    {
+        g_drops[ac]++;
+        g_dropTime[ac] += now - it->second;
+    }
+    g_lastAck[key] = now;
 }
 
 void
@@ -105,6 +120,8 @@ OnAssoc(Mac48Address)
 {
     g_assoc++;
 }
+
+uint8_t g_aifsn[2] = {2, 3}; // [AC3, AC1]; AIFS = SIFS + AIFSN x slot = 3 and 4 slots
 
 void
 ConfigureEdca(Ptr<NetDevice> dev, double sifsUs)
@@ -117,13 +134,13 @@ ConfigureEdca(Ptr<NetDevice> dev, double sifsUs)
     auto vo = ptr.Get<QosTxop>();
     vo->SetMinCws({15});
     vo->SetMaxCws({127});
-    vo->SetAifsns({2});
+    vo->SetAifsns({g_aifsn[0]});
     vo->SetTxopLimits({Seconds(0)});
     mac->GetAttribute("BK_Txop", ptr); // paper AC1
     auto bk = ptr.Get<QosTxop>();
     bk->SetMinCws({31});
     bk->SetMaxCws({255});
-    bk->SetAifsns({3});
+    bk->SetAifsns({g_aifsn[1]});
     bk->SetTxopLimits({Seconds(0)});
 }
 } // namespace
@@ -139,6 +156,9 @@ main(int argc, char* argv[])
     double offeredMbps = 4.0;
     uint32_t retryLimit = 7; // not reported in the paper; ns-3 default
     std::string delayCsv;
+    bool idealPlcp = false;
+    uint32_t aifsnAc3 = g_aifsn[0];
+    uint32_t aifsnAc1 = g_aifsn[1];
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("nSta", "Number of stations M", nSta);
@@ -151,7 +171,17 @@ main(int argc, char* argv[])
     cmd.AddValue("offeredMbps", "Offered load per AC per station (Mb/s), saturating", offeredMbps);
     cmd.AddValue("retryLimit", "Frame retry limit", retryLimit);
     cmd.AddValue("delayCsv", "Dump access-delay samples to this CSV", delayCsv);
+    cmd.AddValue("idealPlcp", "Send the 192-bit PLCP at 11 Mb/s as in the paper (patched ns-3)",
+                 idealPlcp);
+    cmd.AddValue("aifsnAc3", "AIFSN of AC3 (AIFS = SIFS + AIFSN x slot)", aifsnAc3);
+    cmd.AddValue("aifsnAc1", "AIFSN of AC1", aifsnAc1);
     cmd.Parse(argc, argv);
+    g_aifsn[0] = aifsnAc3;
+    g_aifsn[1] = aifsnAc1;
+    if (idealPlcp)
+    {
+        setenv("NS3_DSSS_IDEAL_PLCP", "1", 1); // read by the patched DsssPhy
+    }
 
     RngSeedManager::SetSeed(1);
     RngSeedManager::SetRun(seed);
@@ -253,6 +283,7 @@ main(int argc, char* argv[])
     double dur = simTime - g_warmup;
     double S[2];
     double D[2];
+    double Dall[2];
     for (int ac = 0; ac < 2; ++ac)
     {
         S[ac] = g_rxBytes[ac] * 8.0 / dur / 11e6;
@@ -262,11 +293,15 @@ main(int argc, char* argv[])
             sum += d;
         }
         D[ac] = g_delays[ac].empty() ? 0.0 : sum / g_delays[ac].size() * 1e3;
+        double n = g_delays[ac].size() + g_drops[ac];
+        Dall[ac] = n == 0 ? 0.0 : (sum + g_dropTime[ac]) / n * 1e3;
     }
-    std::cout << "M,seed,S_ac3,S_ac1,D_ac3_ms,D_ac1_ms,n_ac3,n_ac1,associated\n"
-              << nSta << "," << seed << "," << S[0] << "," << S[1] << "," << D[0] << "," << D[1]
-              << "," << g_delays[0].size() << "," << g_delays[1].size() << "," << g_assoc
-              << std::endl;
+    std::cout << "M,seed,ideal_plcp,retry,S_ac3,S_ac1,D_ac3_ms,D_ac1_ms,n_ac3,n_ac1,drop_ac3,"
+                 "drop_ac1,Dall_ac3_ms,Dall_ac1_ms,associated\n"
+              << nSta << "," << seed << "," << idealPlcp << "," << retryLimit << "," << S[0] << ","
+              << S[1] << "," << D[0] << "," << D[1] << "," << g_delays[0].size() << ","
+              << g_delays[1].size() << "," << g_drops[0] << "," << g_drops[1] << "," << Dall[0]
+              << "," << Dall[1] << "," << g_assoc << std::endl;
 
     Simulator::Destroy();
     return 0;

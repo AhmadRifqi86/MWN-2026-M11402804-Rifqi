@@ -302,7 +302,7 @@ s = slide()
 header(s, "05", "Kong et al. · ns-3 settings", "not pinned down", "What the paper leaves open, and the ns-3 choice", size=28)
 bullets(s, MX, 2.4, CW, 4.6, [
     [("PHY header: ", "b"), ("Table I sends the 192-bit PHY header at 11 Mb/s (≈ 17 µs); real 802.11b needs ", "n"), ("192 µs", "pk"), (" per frame. Max normalized throughput 0.74 vs 0.43, so compare AC3's ", "n"), ("share", "b"), (", not its absolute throughput.", "n")],
-    [("Delay definition: ", "b"), ("Little's law on the paper's own AC3 throughput at M = 30 gives ≈ 36 ms, but Fig. 7b shows ≈ 22 ms — the definition must be fixed and stated.", "n")],
+    [("Delay definition: ", "b"), ("Little's law on the paper's own AC3 throughput at M = 30 gives ≈ 36 ms, but Fig. 7b shows ≈ 24 ms (analysis), ≈ 17 ms (NS-2) — the definition must be fixed and stated.", "n")],
     [("Association: ", "b"), ("NS-2 had no association phase; in ns-3, saturated traffic must start only after all M stations are associated.", "n")],
     [("Not reported: ", "b"), ("retry limit, simulation time, number of seeds.", "pk")],
 ], size=16, gap=14)
@@ -380,7 +380,7 @@ p = para(tf, first=True, space_after=0, line=1.12)
 run(p, "Research question  ", 13, ACCENT, bold=True, font=MONO)
 run(p, "Is the EDCA parameter set that is best under saturation still best for non-saturated, "
        "bursty or frame-based traffic — and how much QoS does it lose if not?", 15, INK)
-steps = [("A4 · Baseline", "Kong et al. Fig. 7 in ns-3 with fixed throughput and delay definitions; Xiao Table I in ns-3."),
+steps = [("A4 · Baseline", "Kong et al. Fig. 7 in ns-3 with fixed throughput and delay definitions; Xiao Table I with the analytical model."),
          ("Traffic models", "Saturated, Poisson, MMPP, 3GPP XR video (A2) in AC_VI, time-of-day λ(t)."),
          ("Policy search", "Sweep CWmin, CWmax, AIFSN, retry per AC; maximize throughput s.t. ≤ 1 % XR budget violations, no starved AC."),
          ("Compare", "Per-traffic optimum vs 802.11e defaults vs the saturation-optimal set.")]

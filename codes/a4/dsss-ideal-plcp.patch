@@ -1,0 +1,56 @@
+diff --git a/src/wifi/model/non-ht/dsss-phy.cc b/src/wifi/model/non-ht/dsss-phy.cc
+index 39a569981..3079f6605 100644
+--- a/src/wifi/model/non-ht/dsss-phy.cc
++++ b/src/wifi/model/non-ht/dsss-phy.cc
+@@ -20,6 +20,7 @@
+ #include "ns3/wifi-utils.h"
+ 
+ #include <array>
++#include <cstdlib>
+ 
+ #undef NS_LOG_APPEND_CONTEXT
+ #define NS_LOG_APPEND_CONTEXT WIFI_PHY_NS_LOG_APPEND_CONTEXT(m_wifiPhy)
+@@ -27,6 +28,21 @@
+ namespace ns3
+ {
+ 
++namespace
++{
++/**
++ * A4 (Kong et al. 2004 reproduction): when the environment variable NS3_DSSS_IDEAL_PLCP is
++ * set, the 192-bit PLCP preamble + header is sent at the 11 Mb/s data rate (17.455 us)
++ * instead of at 1 Mb/s (192 us), as in the paper's Table I. Default behaviour is unchanged.
++ */
++bool
++IdealPlcp()
++{
++    static const bool ideal = std::getenv("NS3_DSSS_IDEAL_PLCP") != nullptr;
++    return ideal;
++}
++} // namespace
++
+ NS_LOG_COMPONENT_DEFINE("DsssPhy");
+ 
+ /*******************************************************
+@@ -141,6 +157,10 @@ DsssPhy::GetDuration(WifiPpduField field, const WifiTxVector& txVector) const
+ Time
+ DsssPhy::GetPreambleDuration(const WifiTxVector& txVector) const
+ {
++    if (IdealPlcp())
++    {
++        return NanoSeconds(1000); // + 16.455 us header = 192 bits at 11 Mb/s
++    }
+     if (txVector.GetPreambleType() == WIFI_PREAMBLE_SHORT &&
+         (txVector.GetMode().GetDataRate(MHz_u{22}) > 1000000))
+     {
+@@ -158,6 +178,10 @@ DsssPhy::GetPreambleDuration(const WifiTxVector& txVector) const
+ Time
+ DsssPhy::GetHeaderDuration(const WifiTxVector& txVector) const
+ {
++    if (IdealPlcp())
++    {
++        return NanoSeconds(16455);
++    }
+     if (txVector.GetPreambleType() == WIFI_PREAMBLE_SHORT &&
+         (txVector.GetMode().GetDataRate(MHz_u{22}) > 1000000))
+     {
