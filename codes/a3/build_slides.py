@@ -223,6 +223,18 @@ def image_slide(num, section, corner_text, title_text, img, note=None):
     return s
 
 
+def source_line(s, text, y=6.95):
+    _, tf = textbox(s, MX, y, CW, 0.3)
+    p = para(tf, first=True, space_after=0, align=PP_ALIGN.RIGHT)
+    run(p, text, 10, FAINT, italic=True)
+
+
+def panel_label(s, x, y, w, text):
+    _, tf = textbox(s, x, y, w, 0.3)
+    p = para(tf, first=True, space_after=0, align=PP_ALIGN.CENTER)
+    run(p, text, 11.5, ACCENT, bold=True, font=MONO)
+
+
 # ---------------------------------------------------------------- 1 title
 s = slide()
 rect(s, 0, 0, 0.16, 7.5, fill=ACCENT, radius=0)
@@ -269,9 +281,27 @@ image_slide("02", "Kong et al. · System model", "3-D Markov chain per AC",
             "System model: saturated BSS, two ACs per station",
             "kong_system_model.png")
 
+# ---------------------------------------------------------------- P1 key figure (paper's own)
+s = slide()
+header(s, "03", "Kong et al. · Key result", "paper Fig. 7", "Kong Fig. 7: AC3 is protected, AC1 pays", size=26, rule=False)
+w = 8.3
+picture(s, "paper_kong_fig7.png", MX, 2.0, w=w)
+legend(s, MX + w + 0.25, 2.0, CW - w - 0.25, 3.72, "HOW TO READ", [
+    ("x ", "M stations, one AC3 + one AC1 each"),
+    ("△ ", "AC3 analysis (line)"),
+    ("◇ ", "AC1 analysis (line)"),
+    ("* ", "AC3 NS-2 (Sim)"),
+    ("◆ ", "AC1 NS-2 (Sim)")], sym_size=11, desc_size=11.5)
+bullets(s, MX, 5.95, CW, 0.9, [
+    [("(a) ", "b"), ("AC3 stays at ≈ 0.6 while AC1 halves (0.12 → 0.06).  ", "n"),
+     ("(b) ", "b"), ("AC1 delay grows ~linearly to ≈ 230 ms at M = 30; AC3 stays < 25 ms.  ", "n"),
+     ("Analysis ≈ NS-2 → model validated.", "good")],
+], size=13.5, gap=2)
+source_line(s, "Figure: Z. Kong et al., IEEE JSAC 22(10), 2004, Fig. 7 (© IEEE), reproduced for teaching")
+
 # ---------------------------------------------------------------- 5 P1 reported results
 s = slide()
-header(s, "03", "Kong et al. · Reported results", "NS-2 vs analysis", "AC3 is protected; AC1 pays for it", size=28)
+header(s, "04", "Kong et al. · Reported results", "NS-2 vs analysis", "AC3 is protected; AC1 pays for it", size=28)
 table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
     ["Figure", "Experiment", "Result reported in the paper"],
     ["Fig. 7", "one AC3 + one AC1 per station, M = 5…30", "AC3 throughput flat at ≈ 0.6; AC1 halves 0.12 → 0.06. AC1 delay ≈ 230 ms at M = 30, AC3 < 25 ms"],
@@ -283,7 +313,7 @@ table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
 
 # ---------------------------------------------------------------- 5 P1 ns-3 settings
 s = slide()
-header(s, "04", "Kong et al. · ns-3 settings", "ns-3.48", "Rebuilding Kong et al.'s experiments in ns-3.48", size=28)
+header(s, "05", "Kong et al. · ns-3 settings", "ns-3.48", "Rebuilding Kong et al.'s experiments in ns-3.48", size=28)
 table(s, MX, 2.3, CW, [2.1, 3.9, 5.4], [
     ["Item", "Paper (Table I)", "ns-3.48 setting"],
     ["Topology", "M stations → AP, ideal channel", "1 AP + M STAs on a 5 m circle, M = 5…30"],
@@ -299,7 +329,7 @@ table(s, MX, 2.3, CW, [2.1, 3.9, 5.4], [
 
 # ---------------------------------------------------------------- 7 P1 points to check
 s = slide()
-header(s, "05", "Kong et al. · ns-3 settings", "not pinned down", "What the paper leaves open, and the ns-3 choice", size=28)
+header(s, "06", "Kong et al. · ns-3 settings", "not pinned down", "What the paper leaves open, and the ns-3 choice", size=28)
 bullets(s, MX, 2.4, CW, 4.6, [
     [("PHY header: ", "b"), ("Table I sends the 192-bit PHY header at 11 Mb/s (≈ 17 µs); real 802.11b needs ", "n"), ("192 µs", "pk"), (" per frame. Max normalized throughput 0.74 vs 0.43, so compare AC3's ", "n"), ("share", "b"), (", not its absolute throughput.", "n")],
     [("Delay definition: ", "b"), ("Little's law on the paper's own AC3 throughput at M = 30 gives ≈ 36 ms, but Fig. 7b shows ≈ 24 ms (analysis), ≈ 17 ms (NS-2) — the definition must be fixed and stated.", "n")],
@@ -309,7 +339,7 @@ bullets(s, MX, 2.4, CW, 4.6, [
 
 # ---------------------------------------------------------------- 7 P2 problem
 s = slide()
-header(s, "06", "Xiao 2005", "IEEE TWC 4(4)", "Xiao: three backoff knobs, with frame loss")
+header(s, "07", "Xiao 2005", "IEEE TWC 4(4)", "Xiao: three backoff knobs, with frame loss")
 card(s, MX, 2.4, cw3, 3.9, "Problem", [
     "DCF lets a voice frame wait arbitrarily long.",
     "Earlier priority schemes: simulation only, or models with an infinite retry limit.",
@@ -325,13 +355,30 @@ card(s, MX + 2 * (cw3 + 0.2), 2.4, cw3, 3.9, "Challenges", [
     "An accurate delay model."], color=PEAK)
 
 # ---------------------------------------------------------------- 8 P2 system model
-image_slide("07", "Xiao · System model", "2-D Markov chain per class",
+image_slide("08", "Xiao · System model", "2-D Markov chain per class",
             "System model: N classes, one class per station",
             "xiao_system_model.png")
 
+# ---------------------------------------------------------------- P2 key figures (paper's own)
+s = slide()
+header(s, "09", "Xiao · Key result", "paper Figs. 2–4 (analysis)", "Xiao Figs. 2–4: priority is paid for with loss", size=26, rule=False)
+pw, gap = 3.66, 0.21
+for i, (img, lab) in enumerate((("paper_xiao_fig2.png", "Fig. 2 · throughput S"),
+                                ("paper_xiao_fig3.png", "Fig. 3 · delay (µs)"),
+                                ("paper_xiao_fig4.png", "Fig. 4 · drop probability"))):
+    x = MX + i * (pw + gap)
+    panel_label(s, x, 1.95, pw, lab)
+    picture(s, img, x, 2.3, w=pw)
+bullets(s, MX, 5.75, CW, 1.2, [
+    [("x = stations per class (n₀ = n₁);  ○ class 0 = W₀ 16, σ 1.7, L 4;  + class 1 = W₀ 32, σ 2, L 7.", "n")],
+    [("Class 0 gets ≈ 3× the throughput and much lower delay, ", "n"), ("but drops more frames (≈ 9 % vs 2.4 % at n = 40)", "pk"),
+     (" — priority is paid for with loss.", "n")],
+], size=13, gap=3)
+source_line(s, "Figures: Y. Xiao, IEEE Trans. Wireless Commun. 4(4), 2005, Figs. 2–4 (© IEEE), reproduced for teaching")
+
 # ---------------------------------------------------------------- 10 P2 reported results
 s = slide()
-header(s, "08", "Xiao · Reported results", "OPNET vs analysis", "Each knob moves bandwidth between the classes", size=28)
+header(s, "10", "Xiao · Reported results", "OPNET vs analysis", "Each knob moves bandwidth between the classes", size=28)
 table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
     ["Figure", "Experiment", "Result reported in the paper"],
     ["Table I", "n₀ = n₁ = 10 and 30", "analysis vs OPNET within 0.45–2.2 %, e.g. class 0 throughput 0.5208 vs 0.5161 at n = 10"],
@@ -342,7 +389,7 @@ table(s, MX, 2.35, CW, [1.5, 3.4, 6.5], [
 
 # ---------------------------------------------------------------- 11 P2 ns-3 settings
 s = slide()
-header(s, "09", "Xiao · ns-3 settings", "ns-3.48", "Rebuilding Xiao's experiments in ns-3.48", size=28)
+header(s, "11", "Xiao · ns-3 settings", "ns-3.48", "Rebuilding Xiao's experiments in ns-3.48", size=28)
 table(s, MX, 2.2, CW, [2.1, 4.0, 5.3], [
     ["Item", "Paper", "ns-3.48 setting"],
     ["Topology / traffic", "n₀ + n₁ stations, saturated, 1024 B", "1 AP + (n₀ + n₁) STAs, one saturating client per STA"],
@@ -360,7 +407,7 @@ bullets(s, MX, 6.35, CW, 0.8, [
 
 # ---------------------------------------------------------------- 11 what changed
 s = slide()
-header(s, "10", "Revised proposal", "A1 → A3", "What changed from A1, and why")
+header(s, "12", "Revised proposal", "A1 → A3", "What changed from A1, and why")
 table(s, MX, 2.2, CW, [1.9, 3.0, 3.0, 3.5], [
     ["", "A1", "A3", "Why"],
     ["Technology", "802.16 OFDMA, admission control", "802.11e EDCA", "ns-3.48 has no WiMAX; same research question"],
@@ -373,7 +420,7 @@ table(s, MX, 2.2, CW, [1.9, 3.0, 3.0, 3.5], [
 
 # ---------------------------------------------------------------- 12 proposal
 s = slide()
-header(s, "11", "Revised proposal", "final project", "Optimal EDCA parameters under realistic traffic", size=29)
+header(s, "13", "Revised proposal", "final project", "Optimal EDCA parameters under realistic traffic", size=29)
 rect(s, MX, 2.35, CW, 1.05, fill=CARD, line=HAIR, radius=0.08)
 _, tf = textbox(s, MX + 0.3, 2.5, CW - 0.6, 0.8, anchor=MSO_ANCHOR.MIDDLE)
 p = para(tf, first=True, space_after=0, line=1.12)
