@@ -172,3 +172,15 @@ Both papers assume **saturation**: every queue always has a frame. Their paramet
 2. Y. Xiao, "Performance analysis of priority schemes for IEEE 802.11 and IEEE 802.11e wireless LANs," *IEEE Trans. Wireless Commun.*, vol. 4, no. 4, pp. 1506–1515, Jul. 2005, doi: 10.1109/TWC.2005.850328.
 3. G. Bianchi, "Performance analysis of the IEEE 802.11 distributed coordination function," *IEEE J. Sel. Areas Commun.*, vol. 18, no. 3, pp. 535–547, Mar. 2000 — the model Kong et al. and Xiao extend.
 4. A. El Bouchti, S. El Kafhali, and A. Haqiq, "Performance analysis of connection admission control scheme in IEEE 802.16 OFDMA networks," *IJCSIS*, vol. 9, no. 3, Mar. 2011 — the A1 base paper, replaced here.
+
+---
+
+## Link to submission files
+
+- **Presentation:** [a3-M11402804-AhmadRifqi.pptx](assets/ppt/a3-M11402804-AhmadRifqi.pptx)
+- **Recordings:** [Presentation recordings](https://drive.google.com/file/d/1FfTsdKRSkPNv2W0sx9cFJE3lTtT_h50E/view?usp=sharing)
+- **Rehearsal:** PowerPoint Speaker Coach, 12 slides in 6:30 at 123 words/min.
+
+![Rehearsal report 1](assets/img/rehearse/a3-rehearse-pic1.png)
+
+![Rehearsal report 2](assets/img/rehearse/a3-rehearse-pic2.png)
