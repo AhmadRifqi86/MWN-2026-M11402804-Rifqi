@@ -183,6 +183,11 @@ main(int argc, char* argv[])
         setenv("NS3_DSSS_IDEAL_PLCP", "1", 1); // read by the patched DsssPhy
     }
 
+    // Saturated queues hold frames older than WifiMacQueue's default 500 ms lifetime. A head-of-line
+    // frame would then expire during its retries and be reported as EXPIRED_LIFETIME instead of
+    // REACHED_RETRY_LIMIT, which hides retry-limit drops; the MAC behaviour is the same either way.
+    Config::SetDefault("ns3::WifiMacQueue::MaxDelay", TimeValue(Seconds(3600)));
+
     RngSeedManager::SetSeed(1);
     RngSeedManager::SetRun(seed);
     if (!delayCsv.empty())
@@ -209,8 +214,12 @@ main(int argc, char* argv[])
 
     WifiMacHelper mac;
     Ssid ssid("kong");
+    // with a small retry limit (2-3 attempts) or AIFSN 1 the channel is busy enough that 10 beacons
+    // in a row can be lost; the default MaxMissedBeacons would then make a station re-associate
+    // mid-run, which neither NS-2 nor the paper's model has
     mac.SetType("ns3::StaWifiMac", "Ssid", SsidValue(ssid), "QosSupported", BooleanValue(true),
-                "FrameRetryLimit", UintegerValue(retryLimit));
+                "FrameRetryLimit", UintegerValue(retryLimit),
+                "MaxMissedBeacons", UintegerValue(1000000));
     NetDeviceContainer staDevs = wifi.Install(phy, mac, stas);
     mac.SetType("ns3::ApWifiMac", "Ssid", SsidValue(ssid), "QosSupported", BooleanValue(true),
                 "FrameRetryLimit", UintegerValue(retryLimit));

@@ -1,0 +1,65 @@
+diff --git a/src/wifi/model/txop.cc b/src/wifi/model/txop.cc
+index a87e45e40..d0e89ecbd 100644
+--- a/src/wifi/model/txop.cc
++++ b/src/wifi/model/txop.cc
+@@ -17,12 +17,14 @@
+ #include "wifi-phy.h"
+ 
+ #include "ns3/attribute-container.h"
++#include "ns3/double.h"
+ #include "ns3/log.h"
+ #include "ns3/pointer.h"
+ #include "ns3/shuffle.h"
+ #include "ns3/simulator.h"
+ #include "ns3/socket.h"
+ 
++#include <cmath>
+ #include <iterator>
+ #include <sstream>
+ 
+@@ -106,6 +108,13 @@ Txop::GetTypeId()
+                 MakeAttributeContainerAccessor<TimeValue>(&Txop::SetTxopLimits,
+                                                           &Txop::GetTxopLimits),
+                 MakeAttributeContainerChecker<TimeValue>(MakeTimeChecker()))
++            .AddAttribute("CwGrowthFactor",
++                          "Window-increasing factor sigma: after the k-th failure CW is set to "
++                          "min(CWmax, round(sigma^k x (CWmin + 1)) - 1). The standard uses 2. "
++                          "(Y. Xiao, IEEE Trans. Wireless Commun. 4(4), 2005, eq. 1)",
++                          DoubleValue(2.0),
++                          MakeDoubleAccessor(&Txop::m_cwGrowthFactor),
++                          MakeDoubleChecker<double>(1.0))
+             .AddAttribute("Queue",
+                           "The WifiMacQueue object",
+                           PointerValue(),
+@@ -346,8 +355,17 @@ Txop::UpdateFailedCw(uint8_t linkId)
+         // - CW[AC] shall be set to the lesser of CWmax[AC] and 2^QSRC[AC] × (CWmin[AC] + 1) – 1.
+         // (Section 10.23.2.2 of 802.11-2020)
+         ++link.staRetryCount;
+-        link.cw =
+-            std::min(GetMaxCw(linkId), (1 << link.staRetryCount) * (GetMinCw(linkId) + 1) - 1);
++        if (m_cwGrowthFactor == 2.0)
++        {
++            link.cw = std::min(GetMaxCw(linkId),
++                               (1 << link.staRetryCount) * (GetMinCw(linkId) + 1) - 1);
++        }
++        else
++        {
++            double w = std::pow(m_cwGrowthFactor, link.staRetryCount) * (GetMinCw(linkId) + 1);
++            link.cw = static_cast<uint32_t>(
++                std::min<double>(GetMaxCw(linkId), std::max(1.0, std::round(w)) - 1));
++        }
+     }
+     else
+     {
+diff --git a/src/wifi/model/txop.h b/src/wifi/model/txop.h
+index 471a12107..2e7dfd20f 100644
+--- a/src/wifi/model/txop.h
++++ b/src/wifi/model/txop.h
+@@ -570,6 +570,7 @@ class Txop : public Object
+     Ptr<MacTxMiddle> m_txMiddle;                   //!< the MacTxMiddle
+     Ptr<WifiMac> m_mac;                            //!< the wifi MAC
+     Ptr<UniformRandomVariable> m_rng;              //!< the random stream
++    double m_cwGrowthFactor{2.0};                  //!< window-increasing factor sigma
+     UniformRandomBitGenerator m_shuffleLinkIdsGen; //!< random number generator to shuffle link IDs
+ 
+     /// TracedCallback for backoff trace value typedef
