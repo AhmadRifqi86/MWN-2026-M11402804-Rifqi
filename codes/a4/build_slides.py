@@ -234,12 +234,12 @@ def fit_picture(s, name, y, max_w=CW, max_h=4.6):
     return y + h
 
 
-def why(s, y, text, x=MX, w=CW, h=0.52, size=13):
-    """Short 'why the gap' callout under a result."""
-    rect(s, x, y, w, h, fill=WARM, line=PEAK, line_w=1.0, radius=0.12)
+def why(s, y, text, x=MX, w=CW, h=0.52, size=13, label="WHY THE GAP", color=PEAK, fill=WARM):
+    """Short labelled callout under a result (default: 'why the gap')."""
+    rect(s, x, y, w, h, fill=fill, line=color, line_w=1.0, radius=0.12)
     _, tf = textbox(s, x + 0.2, y, w - 0.4, h, anchor=MSO_ANCHOR.MIDDLE)
     p = para(tf, first=True, space_after=0, line=1.05)
-    run(p, "WHY THE GAP   ", 10.5, PEAK, bold=True, font=MONO, spacing=1.2)
+    run(p, label + "   ", 10.5, color, bold=True, font=MONO, spacing=1.2)
     run(p, text, size, INK)
 
 
@@ -357,10 +357,12 @@ for ln in ["cd /work/ns-3-dev",
 # ---------------------------------------------------------------- 06 result figure
 s = slide()
 header(s, "06", "Kong et al. · result", "same axes as Fig. 7", "Fig. 7 in ns-3: the shape reproduces", size=28, rule=False)
-b = fit_picture(s, "a4_fig7_reproduction.png", 1.95, max_h=4.1)
-note(s, b + 0.12, "Dotted = paper analysis, ◆ = paper NS-2, ● = A (802.11b PHY), △ = B (Table I PHY), "
-                  "□ = C (Table I PHY, 4 attempts). Panel (b) extended to 350 ms.", size=12)
-why(s, b + 0.78, "Basically the PHY header: the paper sends it at 11 Mb/s, real 802.11b at 1 Mb/s (→ half the throughput); "
+b = fit_picture(s, "a4_fig7_reproduction.png", 1.95, max_h=3.8)
+note(s, b + 0.06, "Dotted = paper analysis, ◆ = paper NS-2, ● = A, △ = B, □ = C. Panel (b) extended to 350 ms.", size=12)
+why(s, b + 0.48, "A = real 802.11b PHY, 7 attempts  ·  B = paper's PHY, 7 attempts  ·  "
+                 "C = paper's PHY, 4 attempts (implied)",
+    label="VARIANTS", color=ACCENT, fill=CARD, h=0.46, size=12.5)
+why(s, b + 1.06, "Basically the PHY header: the paper sends it at 11 Mb/s, real 802.11b at 1 Mb/s (→ half the throughput); "
                 "the delay gap is the retry limit the paper does not report.")
 
 # ---------------------------------------------------------------- 07 result numbers
