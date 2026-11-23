@@ -402,3 +402,15 @@ The table supports three conclusions:
 3. G. Bianchi, "Performance analysis of the IEEE 802.11 distributed coordination function," *IEEE J. Sel. Areas Commun.*, vol. 18, no. 3, pp. 535–547, Mar. 2000.
 4. IEEE Std 802.11-2016, §16.2.2 (DSSS PPDU formats: long PLCP preamble and header at 1 Mb/s, 192 µs).
 5. J. D. C. Little, "A proof for the queuing formula L = λW," *Operations Research*, vol. 9, no. 3, pp. 383–387, 1961.
+
+---
+
+## Link to submission files
+
+- **Presentation:** [a4-M11402804-AhmadRifqi.pptx](assets/ppt/a4-M11402804-AhmadRifqi.pptx)
+- **Recordings:** [Presentation recordings](https://drive.google.com/file/d/12AIN-xM50AeSdwr058whsjTtVDxD_XW3/view?usp=sharing)
+- **Rehearsal:** PowerPoint Speaker Coach, 18 slides in 9:53 at 120 words/min.
+
+![Rehearsal report 1](assets/img/rehearse/a4-rehearse-pic1.png)
+
+![Rehearsal report 2](assets/img/rehearse/a4-rehearse-pic2.png)
