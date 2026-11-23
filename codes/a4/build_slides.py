@@ -402,9 +402,12 @@ table(s, MX, 2.35, CW, [4.6, 3.4, 3.4], [
     ["ns-3, Table I PHY (B, C)", "982 µs", "0.741"],
     ["ns-3, 802.11b PHY (A)", "!1 680 µs", "!0.433"],
 ], size=13, head_size=13, row_h=0.55)
-card(s, MX, 4.8, cw3, 1.85, "Predicted", ["B / A = 0.741 / 0.433 = 1.71×"], size=15)
-card(s, MX + cw3 + 0.2, 4.8, cw3, 1.85, "Measured (AC3)", ["0.530 / 0.309 = 1.72× at M = 30; 1.66–1.72 over all M"], color=GOOD, size=15)
-card(s, MX + 2 * (cw3 + 0.2), 4.8, cw3, 1.85, "Consequence", ["Variant A is protocol-accurate; B and C isolate the other gaps."], size=15)
+why(s, 4.75, "The standard sends every frame's PHY header at 1 Mb/s so any receiver can decode it; "
+             "the paper counted it at 11 Mb/s. A PHY-layer simplification in the model, not a protocol difference.",
+    label="WHY 1 Mb/s", h=0.66, size=13)
+card(s, MX, 5.6, cw3, 1.5, "Predicted", ["B / A = 0.741 / 0.433 = 1.71×"], size=15)
+card(s, MX + cw3 + 0.2, 5.6, cw3, 1.5, "Measured (AC3)", ["0.530 / 0.309 = 1.72× at M = 30; 1.66–1.72 over all M"], color=GOOD, size=15)
+card(s, MX + 2 * (cw3 + 0.2), 5.6, cw3, 1.5, "Consequence", ["Variant A is protocol-accurate; B and C isolate the other gaps."], size=15)
 
 # ---------------------------------------------------------------- 09 explain figure
 s = slide()
