@@ -26,6 +26,7 @@ CARD = RGBColor(0xEC, 0xF1, 0xFC)
 CARD2 = RGBColor(0xF6, 0xF8, 0xFB)
 HAIR = RGBColor(0xD9, 0xE0, 0xEA)
 GOOD = RGBColor(0x1E, 0x8E, 0x5A)
+WARM = RGBColor(0xFD, 0xF3, 0xEA)
 
 HEAD, BODY, MONO = "Segoe UI Semibold", "Segoe UI", "Consolas"
 
@@ -233,6 +234,15 @@ def fit_picture(s, name, y, max_w=CW, max_h=4.6):
     return y + h
 
 
+def why(s, y, text, x=MX, w=CW, h=0.52, size=13):
+    """Short 'why the gap' callout under a result."""
+    rect(s, x, y, w, h, fill=WARM, line=PEAK, line_w=1.0, radius=0.12)
+    _, tf = textbox(s, x + 0.2, y, w - 0.4, h, anchor=MSO_ANCHOR.MIDDLE)
+    p = para(tf, first=True, space_after=0, line=1.05)
+    run(p, "WHY THE GAP   ", 10.5, PEAK, bold=True, font=MONO, spacing=1.2)
+    run(p, text, size, INK)
+
+
 def note(s, y, text, size=12.5):
     _, tf = textbox(s, MX, y, CW, 0.5)
     p = para(tf, first=True, space_after=0, align=PP_ALIGN.CENTER)
@@ -347,9 +357,11 @@ for ln in ["cd /work/ns-3-dev",
 # ---------------------------------------------------------------- 06 result figure
 s = slide()
 header(s, "06", "Kong et al. · result", "same axes as Fig. 7", "Fig. 7 in ns-3: the shape reproduces", size=28, rule=False)
-b = fit_picture(s, "a4_fig7_reproduction.png", 1.95, max_h=4.55)
+b = fit_picture(s, "a4_fig7_reproduction.png", 1.95, max_h=4.1)
 note(s, b + 0.12, "Dotted = paper analysis, ◆ = paper NS-2, ● = A (802.11b PHY), △ = B (Table I PHY), "
                   "□ = C (Table I PHY, 4 attempts). Panel (b) extended to 350 ms.", size=12)
+why(s, b + 0.78, "Basically the PHY header: the paper sends it at 11 Mb/s, real 802.11b at 1 Mb/s (→ half the throughput); "
+                "the delay gap is the retry limit the paper does not report.")
 
 # ---------------------------------------------------------------- 07 result numbers
 s = slide()
@@ -368,6 +380,8 @@ table(s, MX, 2.3, 6.7, [0.55, 2.35, 0.95, 0.95, 0.95, 0.95], [
 _, tf = textbox(s, MX, 6.27, 6.7, 0.5)
 p = para(tf, first=True, space_after=0)
 run(p, "Delays in ms. 95 % CI ≤ ±0.002 throughput, ±6.6 ms delay.", 11.5, MUTED, italic=True)
+why(s, 6.62, "A: header at 1 Mb/s vs 11 Mb/s. B/C: AC3 delay needs 4 attempts (unreported). "
+             "Small leftover: ns-3 gives AC1 a bit more share.", w=6.7, h=0.62, size=11.5)
 xr = MX + 7.0
 card(s, xr, 2.3, CW - 7.0, 2.25, "Matches", [
     "Shape and ranking of all curves.",
@@ -465,7 +479,7 @@ run(p, "Verified: CW of class 0 goes 15 → 26 → 45 → 78 → 133 (CwTrace) =
 # ---------------------------------------------------------------- 14 Xiao Figs 2-4
 s = slide()
 header(s, "14", "Xiao · result", "Table I, Figs. 2–4", "Combined scheme: ns-3 differentiates much less", size=28, rule=False)
-b = fit_picture(s, "a4_xiao_fig2-4_ns3.png", 1.9, max_h=3.3)
+b = fit_picture(s, "a4_xiao_fig2-4_ns3.png", 1.9, max_h=2.75)
 table(s, MX, b + 0.15, CW, [2.4, 2.25, 2.25, 2.25, 2.25], [
     ["n = 10 / 30", "S class 0", "S class 1", "delay class 0", "delay class 1"],
     ["ns-3.48", "0.469 / 0.380", "0.174 / 0.142", "25.3 / 72.0 ms", "74.5 / 228 ms"],
@@ -476,16 +490,20 @@ _, tf = textbox(s, MX, b + 0.15 + 4 * 0.36 + 0.08, CW, 0.3)
 p = para(tf, first=True, space_after=0)
 run(p, "Same x-axes and quantities as the paper's Figs. 2–4; delay in ms (paper: µs); y-ranges widened to fit the ns-3 points.",
     11, MUTED, italic=True)
+why(s, b + 0.15 + 4 * 0.36 + 0.42, "Basically ns-3 collides a bit more often (p 0.66 vs 0.58); class 0's low retry limit "
+                                  "turns that into twice the drops, so class 1 takes the freed airtime.")
 
 # ---------------------------------------------------------------- 15 Xiao knobs
 s = slide()
 header(s, "15", "Xiao · result", "Figs. 5, 7, 9", "One knob at a time: close to the model", size=28, rule=False)
-b = fit_picture(s, "a4_xiao_knobs_ns3.png", 1.95, max_h=3.7)
+b = fit_picture(s, "a4_xiao_knobs_ns3.png", 1.95, max_h=2.95)
 bullets(s, MX, b + 0.15, CW, 1.6, [
     [("Every knob works in the paper's direction; ", "b"), ("total throughput 2–3.4 % below the model.", "n")],
     [("Fig. 7, σ₁ = 1.6: ", "b"), ("ns-3 0.249, model 0.238, paper ≈ 0.18 — confirms A3: the paper's Fig. 7 used another setting.", "n")],
     [("Fig. 9, L₁ = 0: ", "b"), ("largest gap — class 1 0.434 vs 0.508 (model).", "pk")],
 ], size=13.5, gap=5)
+why(s, 6.5, "Same slightly higher collision probability in ns-3: only 2–3 % with one knob, "
+            "largest at L₁ = 0 where every failed attempt is a drop.")
 
 # ---------------------------------------------------------------- 16 Xiao explanation
 s = slide()
